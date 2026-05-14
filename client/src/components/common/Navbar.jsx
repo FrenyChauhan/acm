@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { gsap } from 'gsap';
 import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
@@ -9,10 +8,22 @@ export default function Navbar() {
   const location = useLocation();
 
   useEffect(() => {
+    let lastY = 0;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 80);
+      const y = window.scrollY;
+      const nav = document.getElementById('navbar');
+      if (nav) {
+        if (y > lastY && y > 120) {
+          nav.style.transform = 'translateY(-100%)';
+        } else {
+          nav.style.transform = 'translateY(0)';
+        }
+        nav.style.transition = 'transform .4s ease';
+      }
+      lastY = y;
     };
     window.addEventListener('scroll', handleScroll);
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -20,50 +31,49 @@ export default function Navbar() {
     setMenuOpen(false);
   }, [location]);
 
+  const navLinks = ['Home', 'Events', 'Projects', 'Blogs', 'Team', 'Achievements', 'Contact'];
+
   return (
-    <nav className={`fixed top-0 w-full z-[1000] transition-all duration-300 ${scrolled ? 'backdrop-blur-xl bg-[#050A14]/85 border-b border-[#00D4FF]/10 py-3' : 'bg-transparent py-5'}`}>
-      <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
-        <NavLink to="/" className="text-2xl font-['Space_Grotesk'] font-bold text-white flex items-center gap-2">
-          <span className="gradient-text">ACM</span>
-          <span className="text-lg text-gray-300">NIT Surat</span>
+    <>
+      <nav id="navbar" style={{ opacity: 1, transform: 'translateY(0)' }}>
+        <NavLink to="/" className="nav-logo">
+          <div className="nav-diamond">
+            <div className="nav-diamond-inner"><span>acm</span></div>
+          </div>
+          <div className="nav-name">ACM NIT Surat<small>Student Chapter</small></div>
         </NavLink>
-
-        <div className="hidden md:flex items-center gap-8">
-          {['Home', 'Events', 'Projects', 'Blogs', 'Team', 'Achievements', 'Contact'].map((item) => (
-            <NavLink
-              key={item}
-              to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-              className={({ isActive }) =>
-                `relative text-sm font-medium transition-colors hover:text-[#00D4FF] ${isActive ? 'text-[#00D4FF]' : 'text-[#8899BB]'}`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {item}
-                  {isActive && (
-                    <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-[#00D4FF] scale-x-100 transition-transform origin-left" />
-                  )}
-                </>
-              )}
-            </NavLink>
+        
+        <ul className="nav-links">
+          {navLinks.map((item) => (
+            <li key={item}>
+              <NavLink 
+                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                style={({ isActive }) => ({ color: isActive ? 'var(--w)' : '' })}
+              >
+                {item}
+              </NavLink>
+            </li>
           ))}
-          <button className="px-6 py-2 rounded-full border border-[#00D4FF]/30 text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-colors shadow-[0_0_15px_rgba(0,212,255,0.15)] hover:shadow-[0_0_20px_rgba(0,212,255,0.3)]">
-            Join Us
-          </button>
+        </ul>
+        
+        <button className="nav-join"><span>Join Chapter →</span></button>
+        
+        <div className="nav-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <X size={24} color="var(--w60)" /> : (
+            <>
+              <span></span><span></span><span></span>
+            </>
+          )}
         </div>
-
-        <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
+      </nav>
 
       {menuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full h-screen bg-[#050A14] flex flex-col items-center pt-10 gap-6">
-          {['Home', 'Events', 'Projects', 'Blogs', 'Team', 'Achievements', 'Contact'].map((item) => (
+        <div className="fixed top-[70px] left-0 w-full h-screen bg-[#04090f] flex flex-col items-center pt-10 gap-6 z-[999]">
+          {navLinks.map((item) => (
             <NavLink
               key={item}
               to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-              className="text-2xl text-white font-['Space_Grotesk']"
+              className="text-2xl text-white font-['Rajdhani'] uppercase tracking-widest font-bold"
               onClick={() => setMenuOpen(false)}
             >
               {item}
@@ -71,6 +81,6 @@ export default function Navbar() {
           ))}
         </div>
       )}
-    </nav>
+    </>
   );
 }

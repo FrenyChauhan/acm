@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/common/Navbar';
@@ -5,6 +6,7 @@ import Footer from './components/common/Footer';
 import CustomCursor from './components/common/CustomCursor';
 import PageTransition from './components/common/PageTransition';
 import ScrollToTop from './components/common/ScrollToTop';
+import Loader from './components/common/Loader';
 
 import Home from './pages/Home';
 import Events from './pages/Events';
@@ -49,9 +51,21 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+  const [appReady, setAppReady] = useState(false);
+
   return (
     <HelmetProvider>
-      <RouterProvider router={router} />
+      {!appReady && <Loader onComplete={() => setAppReady(true)} />}
+      <div 
+        style={{ 
+          opacity: appReady ? 1 : 0, 
+          transition: 'opacity 0.8s ease-out',
+          height: appReady ? 'auto' : '100vh',
+          overflow: appReady ? 'auto' : 'hidden'
+        }}
+      >
+        <RouterProvider router={router} />
+      </div>
     </HelmetProvider>
   );
 }

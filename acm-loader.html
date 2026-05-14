@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACM NIT Surat — Loader</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --acm-blue-light: #6ec6f0;
+    --acm-blue-mid:   #3a9bd5;
+    --acm-blue-deep:  #1a5c8a;
+    --white:          #ffffff;
+    --bg:             #070d14;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  /* ─── LOADER OVERLAY ─────────────────────────────── */
+  #loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  /* grid lines */
+  #loader::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(58,155,213,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,155,213,.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes gridPulse {
+    0%,100% { opacity:.4 }
+    50%      { opacity:1 }
+  }
+
+  /* radial glow behind logo */
+  .glow-ring {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0;
+  }
+  .glow-ring.g1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(58,155,213,.45) 0%, transparent 70%);
+  }
+  .glow-ring.g2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(110,198,240,.3) 0%, transparent 70%);
+  }
+
+  /* ─── DIAMOND (ACM logo shape) ─────────────────── */
+  .diamond-wrap {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+    transform: rotate(45deg) scale(0.3);
+  }
+
+  .diamond {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--acm-blue-light), var(--acm-blue-mid), var(--acm-blue-deep));
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* shimmer sweep */
+  .diamond::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      transparent 30%,
+      rgba(255,255,255,.35) 50%,
+      transparent 70%);
+    transform: translateX(-200%) translateY(-200%);
+  }
+
+  .diamond-border {
+    position: absolute;
+    inset: -3px;
+    border: 3px solid rgba(110,198,240,.6);
+    animation: borderGlow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes borderGlow {
+    from { box-shadow: inset 0 0 12px rgba(110,198,240,.2), 0 0 12px rgba(110,198,240,.2); }
+    to   { box-shadow: inset 0 0 28px rgba(110,198,240,.5), 0 0 40px rgba(58,155,213,.5); }
+  }
+
+  /* ─── CIRCLE inside diamond ─────────────────────── */
+  .circle-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-45deg); /* counter-rotate so content stays upright */
+  }
+
+  .circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 5px solid var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, rgba(110,198,240,.3), rgba(26,92,138,.2));
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  /* rotating dashed ring */
+  .circle-ring {
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255,255,255,.25);
+    animation: spin 8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── ACM text ───────────────────────────────────── */
+  .acm-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 2.6rem;
+    color: var(--white);
+    letter-spacing: .08em;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+  }
+
+  /* ─── LABEL BLOCK below diamond ─────────────────── */
+  .label-block {
+    position: absolute;
+    top: calc(50% + 130px);
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .label-nit {
+    font-family: 'Space Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .35em;
+    color: var(--acm-blue-light);
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .label-full {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 300;
+    font-size: 1rem;
+    letter-spacing: .18em;
+    color: rgba(255,255,255,.45);
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  /* ─── PROGRESS BAR ───────────────────────────────── */
+  .progress-wrap {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 1px;
+    background: rgba(58,155,213,.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--acm-blue-mid), var(--acm-blue-light));
+    box-shadow: 0 0 8px var(--acm-blue-light);
+    transition: width .05s linear;
+  }
+
+  .progress-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: .65rem;
+    letter-spacing: .15em;
+    color: rgba(110,198,240,.6);
+    text-align: right;
+    margin-top: 6px;
+    opacity: 0;
+  }
+
+  /* ─── CORNER ACCENTS ─────────────────────────────── */
+  .corner {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    opacity: 0;
+  }
+  .corner.tl { top: 24px; left: 24px;   border-top: 1px solid var(--acm-blue-mid); border-left: 1px solid var(--acm-blue-mid); }
+  .corner.tr { top: 24px; right: 24px;  border-top: 1px solid var(--acm-blue-mid); border-right: 1px solid var(--acm-blue-mid); }
+  .corner.bl { bottom: 24px; left: 24px;  border-bottom: 1px solid var(--acm-blue-mid); border-left: 1px solid var(--acm-blue-mid); }
+  .corner.br { bottom: 24px; right: 24px; border-bottom: 1px solid var(--acm-blue-mid); border-right: 1px solid var(--acm-blue-mid); }
+
+  /* ─── PARTICLE CANVAS ────────────────────────────── */
+  #particleCanvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  /* ─── SPLIT PANELS (exit animation) ─────────────── */
+  .panel {
+    position: absolute;
+    width: 100%; height: 50%;
+    background: var(--bg);
+    z-index: 10;
+    transform-origin: center;
+  }
+  .panel.top { top: 0; transform: scaleY(0); transform-origin: top; }
+  .panel.bot { bottom: 0; transform: scaleY(0); transform-origin: bottom; }
+
+  /* ─── MAIN CONTENT (revealed after loader) ───────── */
+  #main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg);
+    opacity: 0;
+    padding: 2rem;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  #main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(58,155,213,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,155,213,.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .main-logo {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 2rem;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, var(--acm-blue-light), var(--acm-blue-mid), var(--acm-blue-deep));
+    box-shadow: 0 0 60px rgba(58,155,213,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .main-logo-inner {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 3px solid var(--white);
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .main-logo-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--white);
+    letter-spacing: .05em;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .4em;
+    color: var(--acm-blue-light);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .hero-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+
+  .hero-title span {
+    background: linear-gradient(90deg, var(--acm-blue-light), var(--acm-blue-mid));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    letter-spacing: .12em;
+    color: rgba(255,255,255,.45);
+    text-transform: uppercase;
+    margin-top: .8rem;
+  }
+
+  .hero-cta {
+    margin-top: 2.5rem;
+    padding: .8rem 2.4rem;
+    border: 1px solid var(--acm-blue-mid);
+    background: transparent;
+    color: var(--acm-blue-light);
+    font-family: 'Space Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color .3s;
+  }
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--acm-blue-mid);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .35s ease;
+  }
+  .hero-cta:hover { color: var(--white); }
+  .hero-cta:hover::before { transform: scaleX(1); }
+  .hero-cta span { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOADER ══════════════════════════════════════════ -->
+<div id="loader">
+  <canvas id="particleCanvas"></canvas>
+  <div class="glow-ring g1"></div>
+  <div class="glow-ring g2"></div>
+
+  <!-- corner accents -->
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <!-- main logo -->
+  <div class="diamond-wrap" id="diamond">
+    <div class="diamond">
+      <div class="diamond-border"></div>
+      <div class="circle-wrap">
+        <div class="circle" id="circle">
+          <div class="circle-ring"></div>
+          <span class="acm-text" id="acmText">acm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- labels -->
+  <div class="label-block">
+    <div class="label-nit" id="labelNit">NIT SURAT</div>
+    <div class="label-full" id="labelFull">Association for Computing Machinery</div>
+  </div>
+
+  <!-- progress -->
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-pct" id="progressPct">000%</div>
+  </div>
+
+  <!-- exit panels -->
+  <div class="panel top" id="panelTop"></div>
+  <div class="panel bot" id="panelBot"></div>
+</div>
+
+<!-- ══ MAIN CONTENT ════════════════════════════════════ -->
+<div id="main">
+  <div class="main-logo">
+    <div class="main-logo-inner">
+      <span class="main-logo-text">acm</span>
+    </div>
+  </div>
+  <p class="hero-eyebrow">NIT Surat Student Chapter</p>
+  <h1 class="hero-title">ACM <span>NIT</span><br>SURAT</h1>
+  <p class="hero-sub">Advancing Computing as a Science & Profession</p>
+  <button class="hero-cta"><span>Explore →</span></button>
+</div>
+
+<script>
+/* ── Particle system ───────────────────────────────── */
+const canvas  = document.getElementById('particleCanvas');
+const ctx     = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function makeParticle() {
+  const angle = Math.random() * Math.PI * 2;
+  const r     = 60 + Math.random() * 180;
+  return {
+    x: W/2 + Math.cos(angle)*r,
+    y: H/2 + Math.sin(angle)*r,
+    vx: (Math.random()-.5) * .4,
+    vy: (Math.random()-.5) * .4,
+    alpha: Math.random() * .6 + .2,
+    size: Math.random() * 1.5 + .5,
+    pulse: Math.random() * Math.PI * 2,
+  };
+}
+
+for (let i = 0; i < 80; i++) particles.push(makeParticle());
+
+function drawParticles() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    p.pulse += .02;
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0||p.x > W||p.y < 0||p.y > H) Object.assign(p, makeParticle());
+    const a = p.alpha * (.6 + .4*Math.sin(p.pulse));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(58,155,213,${a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+/* ── Progress counter ──────────────────────────────── */
+const fillEl = document.getElementById('progressFill');
+const pctEl  = document.getElementById('progressPct');
+let progress = 0;
+
+function updateProgress(val) {
+  progress = val;
+  fillEl.style.width = val + '%';
+  pctEl.textContent  = String(Math.round(val)).padStart(3,'0') + '%';
+}
+
+/* ── GSAP master timeline ──────────────────────────── */
+const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+
+// 1. corners fade in
+tl.to('.corner', { opacity: 1, duration: .5, stagger: .1 }, 0)
+
+// 2. particles canvas appears
+  .to('#particleCanvas', { opacity: 1, duration: .8 }, 0.1)
+
+// 3. glow rings bloom
+  .to('.glow-ring.g1', { opacity: 1, duration: 1.2 }, 0.2)
+  .to('.glow-ring.g2', { opacity: 1, duration: .8 }, 0.5)
+
+// 4. diamond drops + rotates in
+  .to('#diamond', {
+    opacity: 1,
+    rotate: 45,        // stays rotated (CSS already sets 45deg, GSAP will animate from 45+rotate)
+    scale: 1,
+    duration: 1,
+    ease: 'back.out(1.3)',
+  }, 0.4)
+
+// 5. shimmer sweep across diamond
+  .to('.diamond::after', {
+    '--x': '200%',
+    duration: .9,
+  }, 1.2)
+
+// 6. circle pops in
+  .to('#circle', {
+    opacity: 1,
+    scale: 1,
+    duration: .7,
+    ease: 'back.out(1.8)',
+  }, 1.1)
+
+// 7. "acm" text fade in
+  .to('#acmText', { opacity: 1, duration: .5 }, 1.6)
+
+// 8. progress pct appears
+  .to('#progressPct', { opacity: 1, duration: .3 }, 1.4)
+
+// 9. progress bar fills (fake loading 0→100 over ~1.6s)
+  .to({}, {
+    duration: 1.8,
+    onUpdate: function() {
+      updateProgress(this.progress() * 100);
+    },
+    ease: 'power1.inOut',
+  }, 1.2)
+
+// 10. labels slide up
+  .to('#labelNit',  { opacity: 1, y: 0, duration: .6, ease: 'power2.out' }, 1.6)
+  .to('#labelFull', { opacity: 1, y: 0, duration: .6, ease: 'power2.out' }, 1.8)
+
+// 11. brief hold at 100%
+  .to({}, { duration: 0.6 }, 3.2)
+
+// 12. everything contracts / pulses
+  .to('#diamond', { scale: 1.12, duration: .22, ease: 'power2.in' }, 3.8)
+  .to('#diamond', { scale: 0,    duration: .5,  ease: 'power4.in' }, 4.0)
+  .to('#circle',  { scale: 1.2,  opacity: 0, duration: .4, ease: 'power2.in' }, 3.85)
+  .to('.glow-ring', { opacity: 0, scale: 1.4, duration: .5, ease: 'power2.in' }, 3.8)
+  .to('.corner',    { opacity: 0, duration: .3 }, 3.8)
+  .to('#labelNit, #labelFull', { opacity: 0, y: -10, duration: .3 }, 3.8)
+  .to('#progressPct, .progress-wrap', { opacity: 0, duration: .3 }, 3.8)
+  .to('#particleCanvas', { opacity: 0, duration: .4 }, 3.8)
+
+// 13. panel wipe exit (top & bottom split wipe out)
+  .to('#panelTop', { scaleY: 1, transformOrigin: 'top',    duration: .55, ease: 'power4.inOut' }, 4.1)
+  .to('#panelBot', { scaleY: 1, transformOrigin: 'bottom', duration: .55, ease: 'power4.inOut' }, 4.1)
+  .to('#panelTop', { scaleY: 0, transformOrigin: 'top',    duration: .55, ease: 'power4.inOut' }, 4.7)
+  .to('#panelBot', { scaleY: 0, transformOrigin: 'bottom', duration: .55, ease: 'power4.inOut' }, 4.7)
+
+// 14. loader fades completely
+  .to('#loader', { opacity: 0, duration: .35, ease: 'power2.inOut', pointerEvents: 'none' }, 5.1)
+
+// 15. main content reveals
+  .to('#main', {
+    opacity: 1,
+    duration: .8,
+    ease: 'power2.out',
+    onComplete: () => {
+      document.getElementById('loader').style.display = 'none';
+    }
+  }, 5.0);
+
+/* ── stagger hero text on reveal ──────────────────── */
+tl.from('.hero-eyebrow', { y: 20, opacity: 0, duration: .6, ease: 'power2.out' }, 5.2)
+  .from('.hero-title',   { y: 30, opacity: 0, duration: .7, ease: 'power2.out' }, 5.35)
+  .from('.hero-sub',     { y: 20, opacity: 0, duration: .6, ease: 'power2.out' }, 5.5)
+  .from('.hero-cta',     { y: 20, opacity: 0, duration: .5, ease: 'power2.out' }, 5.65);
+</script>
+</body>
+</html>

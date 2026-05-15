@@ -15,7 +15,20 @@ if (process.env.MONGO_URI) {
 }
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(o => o.trim().replace(/\/$/, '')); // strip trailing slashes
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));

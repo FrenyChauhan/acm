@@ -1,14 +1,44 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { toast } from 'react-hot-toast';
+import axios from 'axios';
 import '../styles/home.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
   const canvasRef = useRef(null);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post('http://localhost:5000/api/contact', formData);
+      if (response.data.success) {
+        toast.success(response.data.message || 'Message received! An email has been sent to the admin.');
+        setFormData({ name: '', email: '', message: '' });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error(error.response?.data?.message || 'Failed to send message. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     // Canvas animation
@@ -373,22 +403,21 @@ export default function Home() {
         <div className="events-grid">
           <div className="event-card featured">
             <div>
-              <div className="event-date">Jan 26, 2024 — Hackathon</div>
-              <h3 className="event-title">Dotslash 7.0</h3>
+              <div className="event-date">Hackathon</div>
+              <h3 className="event-title">Dotslash</h3>
               <p className="event-desc">Get ready for innovation at its best. Brilliant minds collide, code sparks fly, and groundbreaking ideas come to life in our flagship 24-hour hackathon with nationwide participants.</p>
               <span className="event-tag">● Hackathon · Open Registration</span>
             </div>
-            <div style={{ opacity: .5, fontFamily: 'var(--font-display)', fontSize: '8rem', color: 'var(--ac20)', lineHeight: 1, textAlign: 'right' }}>7.0</div>
           </div>
           <div className="event-card">
-            <div className="event-date">Jan 8, 2024 — Coding Contest</div>
-            <h3 className="event-title">Epiphany 13.0</h3>
+            <div className="event-date">Coding Contest</div>
+            <h3 className="event-title">Epiphany</h3>
             <p className="event-desc">An inter-college coding contest to test your programming skills and push your limits. Get those thinking caps on for this legendary competitive programming contest.</p>
             <span className="event-tag">● Contest · Inter-College</span>
           </div>
           <div className="event-card">
-            <div className="event-date">Oct 28, 2023 — DSA Event</div>
-            <h3 className="event-title">Inception 8.0</h3>
+            <div className="event-date">DSA Event</div>
+            <h3 className="event-title">Inception</h3>
             <p className="event-desc">One of our most awaited coding events returns. Join us in solving the most fun and challenging DSA problems, crafted to stretch every participant's algorithmic thinking.</p>
             <span className="event-tag">● DSA · Problem Solving</span>
           </div>
@@ -498,20 +527,22 @@ export default function Home() {
               <a href="https://www.youtube.com/c/acmnitsurat" className="social-link" target="_blank" rel="noreferrer">YouTube</a>
             </div>
           </div>
-          <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+          <form className="contact-form" onSubmit={handleSubmit}>
             <div className="form-field">
               <label>Your Name</label>
-              <input type="text" placeholder="Arjun Sharma"/>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Arjun Sharma"/>
             </div>
             <div className="form-field">
               <label>Email Address</label>
-              <input type="email" placeholder="you@svnit.ac.in"/>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@svnit.ac.in"/>
             </div>
             <div className="form-field">
               <label>Message</label>
-              <textarea placeholder="I'd like to know more about joining ACM NIT Surat..."></textarea>
+              <textarea name="message" value={formData.message} onChange={handleChange} placeholder="I'd like to know more about joining ACM NIT Surat..."></textarea>
             </div>
-            <button className="form-btn">Send Message →</button>
+            <button className="form-btn" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Sending...' : 'Send Message →'}
+            </button>
           </form>
         </div>
       </section>

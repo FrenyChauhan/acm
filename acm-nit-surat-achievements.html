@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Achievements — ACM NIT Surat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --b: #04090f;
+  --b1: #081320;
+  --b2: #0c1e33;
+  --ac: #3a9bd5;
+  --acl: #6ec6f0;
+  --acd: #1a5c8a;
+  
+  
+  
+  --w: #ffffff;
+  --w5: rgba(255,255,255,.05);
+  --w10: rgba(255,255,255,.10);
+  --w20: rgba(255,255,255,.20);
+  --w40: rgba(255,255,255,.40);
+  --w60: rgba(255,255,255,.60);
+  --ac10: rgba(58,155,213,.10);
+  --ac20: rgba(58,155,213,.20);
+  --ac40: rgba(58,155,213,.40);
+  
+  
+  
+  --fd: 'Bebas Neue', sans-serif;
+  --fu: 'Rajdhani', sans-serif;
+  --fm: 'Space Mono', monospace;
+}
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { background: var(--b); color: var(--w); font-family: var(--fu); overflow-x: hidden; cursor: none; }
+
+/* ── CURSOR ─────────────────────────────────────── */
+#cursor { position: fixed; width: 10px; height: 10px; border-radius: 50%; background: var(--ac); pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); mix-blend-mode: screen; transition: width .2s, height .2s, background .2s; }
+#cursor-ring { position: fixed; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ac40); pointer-events: none; z-index: 99998; transform: translate(-50%,-50%); transition: width .3s, height .3s; }
+body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; background: var(--acl); }
+body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 54px; height: 54px; border-color: var(--acl); }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--b1); }
+::-webkit-scrollbar-thumb { background: var(--acd); border-radius: 2px; }
+
+/* ── PROGRESS ────────────────────────────────────── */
+#pp { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 9001; background: var(--w5); }
+#ppf { height: 100%; width: 0%; background: linear-gradient(90deg, var(--ac), var(--acl), var(--ac)); box-shadow: 0 0 8px var(--acl); transition: width .1s linear; }
+
+/* ── LOADER ──────────────────────────────────────── */
+#loader { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: var(--b); overflow: hidden; }
+#loader::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(var(--ac10) 1px, transparent 1px), linear-gradient(90deg, var(--ac10) 1px, transparent 1px); background-size: 60px 60px; animation: gp 3s ease-in-out infinite; }
+@keyframes gp { 0%, 100% { opacity: .2; } 50% { opacity: .6; } }
+.lc { position: absolute; width: 22px; height: 22px; opacity: 0; }
+.lc.tl { top: 20px; left: 20px; border-top: 1px solid var(--ac); border-left: 1px solid var(--ac); }
+.lc.tr { top: 20px; right: 20px; border-top: 1px solid var(--ac); border-right: 1px solid var(--ac); }
+.lc.bl { bottom: 20px; left: 20px; border-bottom: 1px solid var(--ac); border-left: 1px solid var(--ac); }
+.lc.br { bottom: 20px; right: 20px; border-bottom: 1px solid var(--ac); border-right: 1px solid var(--ac); }
+.l-center { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; position: relative; z-index: 2; }
+.l-trophy { font-size: 4rem; opacity: 0; transform: scale(0) rotate(-20deg); }
+.l-word { font-family: var(--fd); font-size: clamp(3rem, 8vw, 7rem); letter-spacing: .16em; color: var(--w); display: block; overflow: hidden; }
+.l-word span { display: inline-block; transform: translateY(110%); opacity: 0; }
+.l-sub { font-family: var(--fm); font-size: .6rem; letter-spacing: .42em; color: var(--acl); text-transform: uppercase; opacity: 0; }
+.l-bar-wrap { width: 220px; height: 1px; background: var(--ac20); overflow: hidden; }
+.l-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--ac), var(--acl)); box-shadow: 0 0 8px var(--acl); }
+.l-pct { font-family: var(--fm); font-size: .58rem; letter-spacing: .15em; color: var(--ac40); text-align: center; margin-top: 5px; opacity: 0; }
+.l-panel { position: absolute; width: 100%; height: 50%; background: var(--b); z-index: 10; }
+.l-panel.top { top: 0; transform: scaleY(0); transform-origin: top; }
+.l-panel.bot { bottom: 0; transform: scaleY(0); transform-origin: bottom; }
+
+/* ── NAV ─────────────────────────────────────────── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 clamp(1.5rem,4vw,4rem); height: 70px; display: flex; align-items: center; justify-content: space-between; background: rgba(4,9,15,.75); backdrop-filter: blur(20px); border-bottom: 1px solid var(--w5); opacity: 0; transform: translateY(-100%); transition: transform .4s ease; }
+.nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.nav-diamond { width: 36px; height: 36px; background: linear-gradient(135deg, var(--acl), var(--ac), var(--acd)); transform: rotate(45deg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 14px var(--ac40); }
+.nav-diamond-inner { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--w); transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; }
+.nav-diamond-inner span { font-family: var(--fu); font-weight: 700; font-size: .55rem; color: var(--w); letter-spacing: .04em; }
+.nav-name { font-family: var(--fu); font-weight: 700; font-size: 1.1rem; letter-spacing: .08em; color: var(--w); }
+.nav-name small { display: block; font-weight: 300; font-size: .65rem; letter-spacing: .2em; color: var(--acl); text-transform: uppercase; }
+.nav-links { display: flex; align-items: center; gap: clamp(1rem,2.5vw,2.5rem); list-style: none; }
+.nav-links a { font-family: var(--fu); font-weight: 600; font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; color: var(--w60); text-decoration: none; position: relative; transition: color .3s; }
+.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--ac); transition: width .35s ease; }
+.nav-links a:hover { color: var(--w); }
+.nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+.nav-links a.active { color: var(--acl); }
+.nav-join { font-family: var(--fm); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; padding: .55rem 1.4rem; border: 1px solid var(--ac); background: transparent; color: var(--acl); cursor: none; position: relative; overflow: hidden; transition: color .3s; text-decoration: none; }
+.nav-join::before { content: ''; position: absolute; inset: 0; background: var(--ac); transform: scaleX(0); transform-origin: left; transition: transform .35s ease; }
+.nav-join:hover { color: var(--w); }
+.nav-join:hover::before { transform: scaleX(1); }
+.nav-join span { position: relative; z-index: 1; }
+
+/* ── HERO ─────────────────────────────────────────── */
+#ach-hero { min-height: 100vh; display: flex; align-items: flex-end; position: relative; overflow: hidden; padding: 70px clamp(1.5rem,6vw,7rem) 0; }
+#hero-canvas { position: absolute; inset: 0; pointer-events: none; }
+.hero-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--ac10) 1px, transparent 1px), linear-gradient(90deg, var(--ac10) 1px, transparent 1px); background-size: 70px 70px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%); }
+.hero-glow { position: absolute; top: 15%; right: 5%; width: 700px; height: 700px; background: radial-gradient(circle, rgba(58,155,213,.10) 0%, rgba(58,155,213,.08) 40%, transparent 70%); filter: blur(50px); pointer-events: none; animation: glowPulse 4s ease-in-out infinite; }
+.hero-glow2 { position: absolute; bottom: -10%; left: -8%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(26,92,138,.18) 0%, transparent 70%); filter: blur(60px); pointer-events: none; }
+@keyframes glowPulse { 0%, 100% { opacity: .7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+
+/* floating trophy ring */
+.trophy-ring { position: absolute; right: clamp(-5rem,-5vw,-2rem); top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 0; }
+.tr-outer { width: min(85vw, 700px); height: min(85vw, 700px); border-radius: 50%; border: 1px solid var(--ac10); position: relative; display: flex; align-items: center; justify-content: center; }
+.tr-mid { width: 75%; height: 75%; border-radius: 50%; border: 1px dashed var(--ac20); display: flex; align-items: center; justify-content: center; }
+.tr-inner { width: 70%; height: 70%; border-radius: 50%; border: 1px solid var(--ac40); display: flex; align-items: center; justify-content: center; }
+.tr-icon { font-size: clamp(4rem, 8vw, 7rem); filter: drop-shadow(0 0 40px rgba(58,155,213,.40)); }
+
+.hero-content { position: relative; z-index: 2; padding-bottom: clamp(3rem,8vh,6rem); width: 100%; }
+.h-eyebrow { font-family: var(--fm); font-size: .7rem; letter-spacing: .45em; color: var(--acl); text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 1.8rem; opacity: 0; }
+.h-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--ac); }
+.h-tag { background: var(--ac10); border: 1px solid var(--ac20); padding: .25rem .8rem; font-size: .65rem; letter-spacing: .2em; color: var(--acl); }
+.h-title { font-family: var(--fd); font-size: clamp(5rem, 13vw, 12rem); line-height: .85; letter-spacing: .02em; text-transform: uppercase; margin-bottom: 2rem; }
+.h-title .line { display: block; overflow: hidden; }
+.h-title .word { display: inline-block; transform: translateY(110%); }
+.h-title .grad { background: linear-gradient(90deg, var(--acl), var(--ac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.h-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; border-top: 1px solid rgba(58,155,213,.15); padding-top: 1.5rem; opacity: 0; }
+.h-desc { font-family: var(--fu); font-weight: 300; font-size: 1rem; line-height: 1.8; color: var(--w60); max-width: 520px; }
+.h-scroll { display: flex; align-items: center; gap: 10px; font-family: var(--fm); font-size: .6rem; letter-spacing: .25em; color: var(--w40); text-transform: uppercase; }
+.h-scroll-line { width: 40px; height: 1px; background: var(--ac40); position: relative; overflow: hidden; }
+.h-scroll-line::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--acl); animation: sl 2s ease-in-out infinite; }
+@keyframes sl { 0% { left: -100%; } 50%, 100% { left: 100%; } }
+
+/* ── MARQUEE ─────────────────────────────────────── */
+.marquee-section { padding: 0; overflow: hidden; border-top: 1px solid rgba(58,155,213,.10); border-bottom: 1px solid rgba(58,155,213,.10); background: var(--b1); }
+.marquee-track { display: flex; white-space: nowrap; padding: .9rem 0; animation: mq 20s linear infinite; }
+@keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track:hover { animation-play-state: paused; }
+.mqi { font-family: var(--fd); font-size: 1.2rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ac20); padding: 0 2rem; display: flex; align-items: center; gap: 2rem; }
+.mqdot { width: 5px; height: 5px; border-radius: 50%; background: var(--acl); flex-shrink: 0; box-shadow: 0 0 5px var(--acl); }
+
+/* ── STATS STRIP ─────────────────────────────────── */
+#stats-strip { padding: 5rem clamp(1.5rem,6vw,7rem); background: var(--b1); border-bottom: 1px solid var(--w5); position: relative; overflow: hidden; }
+#stats-strip::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 1000px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(58,155,213,.05) 0%, transparent 70%); pointer-events: none; }
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+.stat-block { padding: 2.5rem 2rem; border-right: 1px solid var(--w5); position: relative; opacity: 0; transform: translateY(30px); }
+.stat-block:last-child { border-right: none; }
+.stat-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--ac20), transparent); opacity: 0; transition: opacity .4s; }
+.stat-block:hover::before { opacity: 1; }
+.stat-num { font-family: var(--fd); font-size: clamp(3rem,5vw,5rem); background: linear-gradient(135deg, var(--acl), var(--ac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; display: block; margin-bottom: .4rem; }
+.stat-label { font-family: var(--fm); font-size: .58rem; letter-spacing: .28em; color: var(--w40); text-transform: uppercase; margin-bottom: .6rem; }
+.stat-desc { font-family: var(--fu); font-weight: 300; font-size: .82rem; line-height: 1.6; color: var(--w40); }
+
+/* ── SECTION LABEL ───────────────────────────────── */
+.sec-label { font-family: var(--fm); font-size: .65rem; letter-spacing: .38em; color: var(--acl); text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; opacity: 0; transform: translateX(-30px); }
+.sec-label::before { content: ''; display: block; width: 28px; height: 1px; background: var(--ac); }
+
+/* ── ICPC ACHIEVEMENT ────────────────────────────── */
+#icpc-section { padding: 6rem clamp(1.5rem,6vw,7rem); position: relative; overflow: hidden; }
+#icpc-section::before { content: ''; position: absolute; top: -100px; right: -100px; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(58,155,213,.06) 0%, transparent 70%); pointer-events: none; }
+
+.icpc-card { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ac20); background: var(--b1); overflow: hidden; opacity: 0; transform: translateY(60px); position: relative; cursor: none; }
+.icpc-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ac), var(--acl), var(--ac)); }
+.icpc-card::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at var(--mx, 50%) var(--my, 50%), rgba(58,155,213,.04) 0%, transparent 60%); pointer-events: none; transition: opacity .3s; opacity: 0; }
+.icpc-card:hover::after { opacity: 1; }
+
+/* photo side */
+.icpc-photo { position: relative; overflow: hidden; aspect-ratio: 1/1; }
+.icpc-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform .8s cubic-bezier(.16,1,.3,1), filter .4s; filter: saturate(.8) brightness(.85); }
+.icpc-card:hover .icpc-photo img { transform: scale(1.04); filter: saturate(1) brightness(.95); }
+/* overlay on image */
+.icpc-photo-overlay { position: absolute; inset: 0; background: linear-gradient(to right, transparent 60%, var(--b1) 100%), linear-gradient(to top, rgba(4,9,15,.7) 0%, transparent 40%); }
+/* badge on photo */
+.icpc-badge { position: absolute; top: 1.2rem; left: 1.2rem; background: linear-gradient(135deg, var(--ac), var(--acd)); padding: .4rem 1rem; z-index: 2; }
+.icpc-badge-text { font-family: var(--fm); font-size: .55rem; letter-spacing: .25em; color: var(--w); text-transform: uppercase; font-weight: 700; }
+/* floating year */
+.icpc-year-float { position: absolute; bottom: 1rem; right: 1rem; font-family: var(--fd); font-size: 4.5rem; color: rgba(58,155,213,.12); line-height: 1; z-index: 1; pointer-events: none; }
+
+/* info side */
+.icpc-info { padding: 3.5rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+.icpc-info::before { content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%; background: var(--ac20); }
+.icpc-competition { font-family: var(--fm); font-size: .58rem; letter-spacing: .3em; color: var(--acl); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .6rem; }
+.icpc-competition::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--acl); box-shadow: 0 0 8px var(--acl); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.icpc-title { font-family: var(--fd); font-size: clamp(2rem,3.5vw,3.5rem); letter-spacing: .04em; text-transform: uppercase; color: var(--w); line-height: 1.0; margin-bottom: 1rem; }
+.icpc-subtitle { font-family: var(--fu); font-size: 1rem; font-weight: 300; color: var(--acl); letter-spacing: .06em; margin-bottom: 1.5rem; }
+.icpc-desc { font-family: var(--fu); font-weight: 300; font-size: .92rem; line-height: 1.85; color: var(--w60); margin-bottom: 2rem; flex: 1; }
+
+/* team members row */
+.team-members { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.member-pill { background: var(--ac10); border: 1px solid var(--ac20); padding: .4rem 1rem; font-family: var(--fm); font-size: .55rem; letter-spacing: .15em; color: var(--acl); text-transform: uppercase; position: relative; overflow: hidden; transition: background .3s; }
+.member-pill:hover { background: var(--ac20); }
+.member-pill .mp-inst { display: block; font-size: .5rem; color: var(--w40); margin-top: .15rem; letter-spacing: .1em; }
+
+/* highlights */
+.icpc-highlights { display: flex; gap: .8rem; flex-wrap: wrap; }
+.hl-chip { background: var(--b2); border: 1px solid var(--w10); padding: .38rem .9rem; font-family: var(--fm); font-size: .52rem; letter-spacing: .14em; color: var(--w40); text-transform: uppercase; transition: border-color .3s, color .3s; }
+.hl-chip:hover { border-color: var(--ac40); color: var(--acl); }
+
+/* ── DOTSLASH SECTION ────────────────────────────── */
+#dotslash-section { padding: 0 clamp(1.5rem,6vw,7rem) 6rem; }
+.ds-heading-row { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 3rem; }
+.ds-heading { font-family: var(--fd); font-size: clamp(3rem,7vw,7rem); letter-spacing: .03em; text-transform: uppercase; line-height: 1; }
+.ds-heading .grad { background: linear-gradient(90deg, var(--acl), var(--ac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.ds-edition { font-family: var(--fm); font-size: .6rem; letter-spacing: .3em; color: var(--ac40); text-transform: uppercase; }
+
+.ds-card { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--w5); background: var(--b1); overflow: hidden; opacity: 0; transform: translateY(50px); position: relative; transition: border-color .4s; }
+.ds-card:hover { border-color: var(--ac20); }
+.ds-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--ac), var(--acl), var(--ac)); }
+
+.ds-photo { position: relative; overflow: hidden; aspect-ratio: 4/3; }
+.ds-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform .8s cubic-bezier(.16,1,.3,1), filter .4s; filter: saturate(.7) brightness(.75); }
+.ds-card:hover .ds-photo img { transform: scale(1.05); filter: saturate(.9) brightness(.85); }
+.ds-photo-overlay { position: absolute; inset: 0; background: linear-gradient(to right, transparent 50%, var(--b1) 100%), linear-gradient(to top, rgba(4,9,15,.8) 0%, transparent 40%); }
+.ds-badge { position: absolute; bottom: 1.2rem; left: 1.2rem; z-index: 2; }
+.ds-badge-pill { font-family: var(--fm); font-size: .55rem; letter-spacing: .22em; color: var(--acl); background: rgba(8,19,32,.9); border: 1px solid var(--ac20); padding: .4rem .9rem; text-transform: uppercase; backdrop-filter: blur(8px); }
+.ds-date-badge { font-family: var(--fm); font-size: .5rem; letter-spacing: .18em; color: var(--w40); background: rgba(4,9,15,.85); border: 1px solid var(--w10); padding: .3rem .7rem; text-transform: uppercase; margin-top: .4rem; display: inline-block; }
+
+.ds-info { padding: 3.5rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+.ds-info::before { content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%; background: var(--ac20); }
+.ds-event-type { font-family: var(--fm); font-size: .58rem; letter-spacing: .3em; color: var(--acl); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .6rem; }
+.ds-event-type::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--acl); box-shadow: 0 0 6px var(--acl); }
+.ds-title { font-family: var(--fd); font-size: clamp(2.5rem,4vw,4rem); letter-spacing: .04em; text-transform: uppercase; color: var(--w); line-height: 1; margin-bottom: .5rem; }
+.ds-edition-tag { font-family: var(--fm); font-size: .62rem; letter-spacing: .25em; color: var(--acl); text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .4rem; }
+.ds-edition-tag::before { content: '★'; font-size: .6rem; }
+.ds-desc { font-family: var(--fu); font-weight: 300; font-size: .92rem; line-height: 1.85; color: var(--w60); margin-bottom: 2rem; flex: 1; }
+
+/* quote block inside dotslash */
+.ds-quote { border-left: 2px solid var(--ac); padding: .8rem 1.2rem; background: var(--ac10); margin-bottom: 2rem; }
+.ds-quote p { font-family: var(--fu); font-style: italic; font-size: .9rem; line-height: 1.75; color: var(--w60); }
+
+/* ── FEATURED CARD COLLAPSIBLE DETAIL ───────────────── */
+.featured-detail { max-height: 0; overflow: hidden; transition: max-height .65s cubic-bezier(.16,1,.3,1), opacity .45s ease; opacity: 0; }
+.icpc-card.expanded .featured-detail,
+.ds-card.expanded .featured-detail { max-height: 800px; opacity: 1; }
+
+.featured-toggle { display: inline-flex; align-items: center; gap: .65rem; margin-top: 1.4rem; font-family: var(--fm); font-size: .58rem; letter-spacing: .22em; text-transform: uppercase; color: var(--acl); background: var(--ac10); border: 1px solid var(--ac20); padding: .55rem 1.3rem; cursor: none; transition: background .3s, border-color .3s, color .3s; position: relative; overflow: hidden; }
+.featured-toggle::before { content: ''; position: absolute; inset: 0; background: var(--ac20); transform: scaleX(0); transform-origin: left; transition: transform .35s ease; }
+.featured-toggle:hover::before { transform: scaleX(1); }
+.featured-toggle span { position: relative; z-index: 1; }
+.featured-toggle svg { position: relative; z-index: 1; transition: transform .45s cubic-bezier(.16,1,.3,1); flex-shrink: 0; }
+.icpc-card.expanded .featured-toggle svg,
+.ds-card.expanded .featured-toggle svg { transform: rotate(180deg); }
+.featured-toggle .ft-text::after { content: 'Read Full Story'; }
+.icpc-card.expanded .featured-toggle .ft-text::after,
+.ds-card.expanded .featured-toggle .ft-text::after { content: 'Collapse'; }
+
+.ds-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+.ds-tag { font-family: var(--fm); font-size: .52rem; letter-spacing: .14em; text-transform: uppercase; padding: .3rem .75rem; background: var(--ac10); border: 1px solid var(--ac20); color: var(--acl); }
+
+/* ── ACHIEVEMENT CARDS GRID ──────────────────────── */
+#more-achievements { padding: 0 clamp(1.5rem,6vw,7rem) 8rem; }
+.ma-header { margin-bottom: 3rem; }
+.ma-heading { font-family: var(--fd); font-size: clamp(3rem,6vw,6rem); letter-spacing: .03em; text-transform: uppercase; line-height: 1; }
+.ma-heading .grad { background: linear-gradient(90deg, var(--acl), var(--ac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.ach-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5px; background: var(--w5); border: 1px solid var(--w5); }
+.ach-card { background: var(--b1); padding: 2.2rem; overflow: hidden; position: relative; opacity: 0; transform: translateY(40px); transition: background .4s; cursor: none; display: flex; flex-direction: column; min-height: 260px; }
+.ach-card:hover { background: var(--b2); }
+.ach-card::after { content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--ac), var(--acl)); transform: scaleX(0); transform-origin: left; transition: transform .5s ease; }
+.ach-card:hover::after { transform: scaleX(1); }
+.ach-card-icon { font-size: 2.2rem; margin-bottom: 1.2rem; display: block; line-height: 1; }
+.ach-card-num { position: absolute; top: 1.5rem; right: 1.5rem; font-family: var(--fd); font-size: 4rem; color: rgba(58,155,213,.04); line-height: 1; pointer-events: none; }
+.ach-card-label { font-family: var(--fm); font-size: .56rem; letter-spacing: .28em; color: var(--acl); text-transform: uppercase; margin-bottom: .6rem; }
+.ach-card-title { font-family: var(--fd); font-size: 1.7rem; letter-spacing: .04em; text-transform: uppercase; color: var(--w); line-height: 1.05; margin-bottom: .8rem; }
+.ach-card-desc { font-family: var(--fu); font-weight: 300; font-size: .85rem; line-height: 1.75; color: var(--w40); flex: 1; }
+
+/* ── ACH CARD EXPANDABLE DETAIL ──────────────────── */
+.ach-card-detail { max-height: 0; overflow: hidden; transition: max-height .55s cubic-bezier(.16,1,.3,1), opacity .4s ease; opacity: 0; }
+.ach-card.expanded .ach-card-detail { max-height: 400px; opacity: 1; }
+.ach-detail-inner { padding-top: 1.2rem; border-top: 1px solid var(--ac20); margin-top: 1.2rem; }
+.ach-detail-inner p { font-family: var(--fu); font-weight: 300; font-size: .82rem; line-height: 1.85; color: var(--w60); margin-bottom: .8rem; }
+.ach-detail-inner p:last-child { margin-bottom: 0; }
+.ach-detail-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; }
+.ach-detail-tag { font-family: var(--fm); font-size: .48rem; letter-spacing: .16em; text-transform: uppercase; padding: .28rem .65rem; background: var(--ac10); border: 1px solid var(--ac20); color: var(--acl); }
+
+.ach-card-toggle { display: flex; align-items: center; gap: .5rem; margin-top: 1rem; font-family: var(--fm); font-size: .52rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ac); background: none; border: none; cursor: none; padding: 0; transition: color .3s; }
+.ach-card-toggle:hover { color: var(--acl); }
+.ach-card-toggle svg { transition: transform .4s cubic-bezier(.16,1,.3,1); flex-shrink: 0; }
+.ach-card.expanded .ach-card-toggle svg { transform: rotate(180deg); }
+.ach-card-toggle-text::after { content: 'View Details'; }
+.ach-card.expanded .ach-card-toggle-text::after { content: 'Hide Details'; }
+
+/* ── TIMELINE ────────────────────────────────────── */
+#timeline-section { padding: 0 clamp(1.5rem,6vw,7rem) 8rem; }
+.tl-heading { font-family: var(--fd); font-size: clamp(3rem,6vw,6rem); letter-spacing: .03em; text-transform: uppercase; margin-bottom: 4rem; line-height: 1; }
+.tl-heading .grad { background: linear-gradient(90deg, var(--acl), var(--ac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.timeline { position: relative; padding-left: 3rem; }
+.timeline::before { content: ''; position: absolute; top: 0; bottom: 0; left: .85rem; width: 1px; background: linear-gradient(to bottom, transparent, var(--ac20) 5%, var(--ac20) 95%, transparent); }
+
+.tl-item { position: relative; padding: 0 0 3.5rem 2.5rem; opacity: 0; transform: translateX(-30px); }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -2.15rem; top: .3rem; width: 14px; height: 14px; border-radius: 50%; background: var(--b1); border: 2px solid var(--ac); transition: box-shadow .3s, background .3s; flex-shrink: 0; }
+.tl-item:hover .tl-dot { background: var(--acl); box-shadow: 0 0 14px var(--ac40); }
+.tl-year { font-family: var(--fm); font-size: .58rem; letter-spacing: .28em; color: var(--acl); text-transform: uppercase; margin-bottom: .5rem; display: flex; align-items: center; gap: .6rem; }
+.tl-title { font-family: var(--fd); font-size: 1.6rem; letter-spacing: .04em; text-transform: uppercase; color: var(--w); margin-bottom: .5rem; }
+.tl-body { font-family: var(--fu); font-weight: 300; font-size: .88rem; line-height: 1.75; color: var(--w60); max-width: 600px; }
+
+/* ── CALL TO ACTION ──────────────────────────────── */
+#cta-section { padding: 7rem clamp(1.5rem,6vw,7rem); background: var(--b1); border-top: 1px solid rgba(58,155,213,.10); position: relative; overflow: hidden; }
+#cta-section::before { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 900px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(58,155,213,.06) 0%, transparent 70%); pointer-events: none; }
+.cta-inner { text-align: center; position: relative; z-index: 1; }
+.cta-label { font-family: var(--fm); font-size: .65rem; letter-spacing: .38em; color: var(--acl); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1.5rem; opacity: 0; }
+.cta-label::before, .cta-label::after { content: ''; display: block; width: 28px; height: 1px; background: var(--acl); }
+.cta-heading { font-family: var(--fd); font-size: clamp(3.5rem,8vw,8rem); letter-spacing: .04em; text-transform: uppercase; line-height: .9; margin-bottom: 1.5rem; overflow: hidden; }
+.cta-heading .line { display: block; overflow: hidden; }
+.cta-heading .word { display: inline-block; transform: translateY(110%); }
+.cta-heading .grad { background: linear-gradient(90deg, var(--acl), var(--ac)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cta-desc { font-family: var(--fu); font-weight: 300; font-size: 1.05rem; line-height: 1.8; color: var(--w60); max-width: 560px; margin: 0 auto 2.5rem; opacity: 0; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; opacity: 0; }
+.btn-gold { font-family: var(--fm); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; padding: .9rem 2.4rem; background: linear-gradient(135deg, var(--ac), var(--acd)); color: var(--w); border: none; cursor: none; text-decoration: none; display: inline-flex; align-items: center; gap: .6rem; font-weight: 700; transition: transform .3s, box-shadow .3s; }
+.btn-gold:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(58,155,213,.40); }
+.btn-outline-gold { font-family: var(--fm); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; padding: .9rem 2.4rem; border: 1px solid var(--ac40); color: var(--acl); background: transparent; cursor: none; text-decoration: none; display: inline-flex; align-items: center; gap: .6rem; transition: border-color .3s, color .3s, background .3s; }
+.btn-outline-gold:hover { border-color: var(--acl); color: var(--w); background: var(--ac); }
+
+/* ── FOOTER ──────────────────────────────────────── */
+footer { background: var(--b1); border-top: 1px solid var(--w5); padding: 4rem clamp(1.5rem,6vw,7rem) 2rem; }
+.footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 3rem; flex-wrap: wrap; margin-bottom: 3rem; }
+.footer-logo { display: flex; align-items: center; gap: 12px; margin-bottom: .8rem; text-decoration: none; }
+.footer-diamond { width: 30px; height: 30px; background: linear-gradient(135deg, var(--acl), var(--ac), var(--acd)); transform: rotate(45deg); display: flex; align-items: center; justify-content: center; }
+.footer-tagline { font-family: var(--fu); font-weight: 300; font-size: .85rem; color: var(--w40); max-width: 240px; line-height: 1.6; }
+.footer-links { display: flex; gap: 4rem; flex-wrap: wrap; }
+.footer-col h4 { font-family: var(--fm); font-size: .58rem; letter-spacing: .35em; color: var(--acl); text-transform: uppercase; margin-bottom: 1rem; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+.footer-col a { font-family: var(--fu); font-weight: 300; font-size: .85rem; color: var(--w40); text-decoration: none; transition: color .3s; }
+.footer-col a:hover { color: var(--acl); }
+.footer-bottom { border-top: 1px solid var(--w5); padding-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.footer-copy { font-family: var(--fm); font-size: .58rem; letter-spacing: .18em; color: var(--w20); }
+.footer-copy span { color: var(--acl); }
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 960px) {
+  .icpc-card, .ds-card { grid-template-columns: 1fr; }
+  .icpc-photo, .ds-photo { aspect-ratio: 16/9; }
+  .icpc-photo-overlay, .ds-photo-overlay { background: linear-gradient(to top, rgba(4,9,15,.8) 0%, transparent 50%); }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .stat-block:nth-child(2) { border-right: none; }
+  .ach-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .ach-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-block { border-right: none; border-bottom: 1px solid var(--w5); }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="pp"><div id="ppf"></div></div>
+
+<!-- ══ LOADER ══ -->
+<div id="loader">
+  <div class="lc tl"></div><div class="lc tr"></div>
+  <div class="lc bl"></div><div class="lc br"></div>
+  <div class="l-center">
+    <div class="l-trophy">🏆</div>
+    <span class="l-word" id="lw1"><span>A</span><span>C</span><span>H</span><span>I</span><span>E</span><span>V</span><span>E</span></span>
+    <div class="l-sub">ACM · NIT Surat · Legacy</div>
+    <div class="l-bar-wrap"><div class="l-bar" id="lBar"></div></div>
+    <div class="l-pct" id="lPct">000%</div>
+  </div>
+  <div class="l-panel top" id="lpT"></div>
+  <div class="l-panel bot" id="lpB"></div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-diamond"><div class="nav-diamond-inner"><span>ACM</span></div></div>
+    <div class="nav-name">ACM<small>NIT Surat Chapter</small></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="#">Events</a></li>
+    <li><a href="blogs.html">Blog</a></li>
+    <li><a href="team.html">Team</a></li>
+    <li><a href="achievements.html" class="active">Achievements</a></li>
+  </ul>
+  <a href="#" class="nav-join"><span>Join Chapter</span></a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="ach-hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="trophy-ring" id="tRing">
+    <div class="tr-outer">
+      <div class="tr-mid">
+        <div class="tr-inner">
+          <div class="tr-icon">🏆</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div class="h-eyebrow" id="hEye">
+      <div class="h-tag">ACM NIT Surat</div>
+      Excellence · Legacy · Pride
+    </div>
+    <h1 class="h-title">
+      <span class="line"><span class="word">OUR</span></span>
+      <span class="line"><span class="word grad">ACHIEVEMENTS</span></span>
+    </h1>
+    <div class="h-meta" id="hMeta">
+      <p class="h-desc">From ICPC regionals to national hackathons — every milestone is a testament to the relentless drive of ACM NIT Surat's members. These aren't just trophies. They're proof.</p>
+      <div class="h-scroll"><div class="h-scroll-line"></div>Scroll to explore</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="mqi"><div class="mqdot"></div>ICPC Regionals</div>
+    <div class="mqi"><div class="mqdot"></div>DotSlash 9.0</div>
+    <div class="mqi"><div class="mqdot"></div>Asia West Regionals</div>
+    <div class="mqi"><div class="mqdot"></div>Competitive Programming</div>
+    <div class="mqi"><div class="mqdot"></div>Hackathon Champions</div>
+    <div class="mqi"><div class="mqdot"></div>Innovation</div>
+    <div class="mqi"><div class="mqdot"></div>NIT Surat</div>
+    <div class="mqi"><div class="mqdot"></div>ICPC Regionals</div>
+    <div class="mqi"><div class="mqdot"></div>DotSlash 9.0</div>
+    <div class="mqi"><div class="mqdot"></div>Asia West Regionals</div>
+    <div class="mqi"><div class="mqdot"></div>Competitive Programming</div>
+    <div class="mqi"><div class="mqdot"></div>Hackathon Champions</div>
+    <div class="mqi"><div class="mqdot"></div>Innovation</div>
+    <div class="mqi"><div class="mqdot"></div>NIT Surat</div>
+  </div>
+</div>
+
+<!-- ══ STATS STRIP ══ -->
+<section id="stats-strip">
+  <div class="stats-grid">
+    <div class="stat-block">
+      <span class="stat-label">ICPC Appearances</span>
+      <span class="stat-num" data-t="3" id="s1">0</span>
+      <p class="stat-desc">Regional-level ICPC qualifications, representing NIT Surat at India's most prestigious programming contest.</p>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">DotSlash Editions</span>
+      <span class="stat-num" data-t="9" id="s2">0</span>
+      <p class="stat-desc">Consecutive editions of NIT Surat's flagship hackathon, each bigger and bolder than the last.</p>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">Years of Legacy</span>
+      <span class="stat-num" data-t="14" id="s3">0</span>
+      <p class="stat-desc">A decade-plus of the ACM chapter building culture, community, and champion coders at NIT Surat.</p>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">Students Impacted</span>
+      <span class="stat-num" data-t="500" id="s4">0</span>
+      <p class="stat-desc">Events, workshops, contests and mentorships touching the lives of hundreds of students every year.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ICPC ACHIEVEMENT ══ -->
+<section id="icpc-section">
+  <div class="sec-label" id="icpcLabel">// ICPC 2025–26 · Asia West Regionals</div>
+  <div class="icpc-card" id="icpcCard">
+    <div class="icpc-photo">
+      <img src="skill_issue.jpg" alt="Team skill_issue at ICPC Amritapuri & Chennai 2025-26" id="icpcImg" loading="lazy"/>
+      <div class="icpc-photo-overlay"></div>
+      <div class="icpc-badge"><div class="icpc-badge-text">🏆 ICPC Qualifier</div></div>
+      <div class="icpc-year-float">2025</div>
+    </div>
+    <div class="icpc-info">
+      <div>
+        <div class="icpc-competition">International Collegiate Programming Contest</div>
+        <h2 class="icpc-title">ICPC Amritapuri &amp; Chennai Region</h2>
+        <div class="icpc-subtitle">Asia West Regionals 2025–26</div>
+        <p class="icpc-desc">
+          We are thrilled to share that our talented team — <strong style="color:var(--ac)">skill_issue</strong> — represented NIT Surat at the Regional Contest of the International Collegiate Programming Contest (ICPC) in the Amritapuri and Chennai region.
+          <br/><br/>
+          ICPC is one of the most prestigious global programming competitions, challenging participants to showcase their skills in algorithmic problem-solving and team-based coding. Kudos to the team for their dedication and hard work — you've made us proud and inspired future coders to aim higher and dream bigger! 🚀
+        </p>
+
+        <div style="margin-bottom:1.5rem">
+          <div style="font-family:var(--fm);font-size:.56rem;letter-spacing:.28em;color:var(--ac);text-transform:uppercase;margin-bottom:.8rem">Team skill_issue</div>
+          <div class="team-members">
+            <div class="member-pill">
+              Vanshik Godeshwar
+              <span class="mp-inst">@vanshik_30</span>
+            </div>
+            <div class="member-pill">
+              Dweep Modi
+              <span class="mp-inst">@dweepmodi2311</span>
+            </div>
+            <div class="member-pill">
+              Smit Marakna
+              <span class="mp-inst">@smit.marakna</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="icpc-highlights">
+        <div class="hl-chip">Amritapuri Region</div>
+        <div class="hl-chip">Chennai Region</div>
+        <div class="hl-chip">Asia West</div>
+        <div class="hl-chip">Algorithmic PS</div>
+        <div class="hl-chip">Team Contest</div>
+        <div class="hl-chip">2025–26</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DOTSLASH SECTION ══ -->
+<section id="dotslash-section">
+  <div class="ds-heading-row">
+    <div>
+      <div class="sec-label" id="dsLabel" style="margin-bottom:.8rem">// Flagship Hackathon · 2025</div>
+      <h2 class="ds-heading"><span class="grad">DotSlash</span> 9.0</h2>
+    </div>
+    <div class="ds-edition">Edition 9 · 21 &amp; 22 March</div>
+  </div>
+
+  <div class="ds-card" id="dsCard">
+    <div class="ds-photo">
+      <img src="dotslash.jpg" alt="DotSlash 9.0 — ACM NIT Surat" id="dsImg" loading="lazy"/>
+      <div class="ds-photo-overlay"></div>
+      <div class="ds-badge">
+        <div class="ds-badge-pill">DotSlash 9.0</div>
+        <div class="ds-date-badge">21 &amp; 22 March 2025</div>
+      </div>
+    </div>
+    <div class="ds-info">
+      <div>
+        <div class="ds-event-type">Flagship Hackathon · NIT Surat</div>
+        <div class="ds-title">DotSlash 9.0</div>
+        <div class="ds-edition-tag">Edition 9 · ACM Core 2025–26</div>
+
+        <div class="ds-quote">
+          <p>"Months of planning, countless meetings, sleepless nights, last-minute chaos — and somehow, everything came together."</p>
+        </div>
+
+        <p class="ds-desc">DotSlash 9.0 became a platform where code met creativity and ideas turned into impactful innovations. The 9th edition of NIT Surat's most celebrated hackathon brought together brilliant minds from across the country for 36 hours of building, problem-solving, and breakthrough moments.
+        <br/><br/>
+        With that, ACM Core 2025–26 signs off DotSlash 9.0. 🚀 Every all-nighter, every last-minute fix, every moment of chaos that turned into something beautiful — it was worth every second.</p>
+
+        <div class="ds-tags">
+          <div class="ds-tag">Hackathon</div>
+          <div class="ds-tag">36 Hours</div>
+          <div class="ds-tag">Innovation</div>
+          <div class="ds-tag">Code + Creativity</div>
+          <div class="ds-tag">NIT Surat</div>
+          <div class="ds-tag">Edition 9</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MORE ACHIEVEMENTS ══ -->
+<section id="more-achievements">
+  <div class="ma-header">
+    <div class="sec-label" id="maLabel">// Hall of Fame</div>
+    <h2 class="ma-heading">More <span class="grad">Milestones</span></h2>
+  </div>
+
+  <div class="ach-grid">
+    <div class="ach-card" data-delay="0">
+      <span class="ach-card-icon">💻</span>
+      <div class="ach-card-num">01</div>
+      <div class="ach-card-label">Competitive Programming</div>
+      <div class="ach-card-title">ICPC Regionals Qualification</div>
+      <p class="ach-card-desc">Team skill_issue — Vanshik, Dweep, and Smit — qualified for and competed in the ICPC Asia West Regionals 2025–26, one of the most competitive stages in collegiate programming.</p>
+      <button class="ach-card-toggle" aria-expanded="false"><span class="ach-card-toggle-text"></span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="ach-card-detail">
+        <div class="ach-detail-inner">
+          <p>The International Collegiate Programming Contest (ICPC) is the world's most prestigious and oldest collegiate programming competition. Getting to the Regional stage is itself a monumental feat — teams must first clear online preliminaries competing against thousands of teams nationwide before earning a spot at the in-person regionals.</p>
+          <p>Team <strong style="color:var(--ac)">skill_issue</strong> — comprising Vanshik Godeshwar, Dweep Modi, and Smit Marakna — represented NIT Surat at two regional sites: <strong style="color:var(--acl)">Amritapuri</strong> and <strong style="color:var(--acl)">Chennai</strong>, both in the Asia West zone. Their performance demanded mastery of algorithms, data structures, and high-pressure collaborative problem-solving under strict time constraints.</p>
+          <p>This qualification marks one of ACM NIT Surat's most celebrated moments in competitive programming and continues to inspire the next generation of coders at the institute. 🚀</p>
+          <div class="ach-detail-meta">
+            <span class="ach-detail-tag">ICPC 2025–26</span>
+            <span class="ach-detail-tag">Asia West Regionals</span>
+            <span class="ach-detail-tag">Amritapuri</span>
+            <span class="ach-detail-tag">Chennai</span>
+            <span class="ach-detail-tag">Team of 3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ach-card" data-delay="1">
+      <span class="ach-card-icon">🚀</span>
+      <div class="ach-card-num">02</div>
+      <div class="ach-card-label">Flagship Event</div>
+      <div class="ach-card-title">DotSlash 9.0 — Successfully Executed</div>
+      <p class="ach-card-desc">9 editions. Hundreds of participants. Sleepless nights. The ACM Core team organized DotSlash 9.0 — where code met creativity and innovation became real on 21 &amp; 22 March 2025.</p>
+      <button class="ach-card-toggle" aria-expanded="false"><span class="ach-card-toggle-text"></span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="ach-card-detail">
+        <div class="ach-detail-inner">
+          <p>DotSlash is NIT Surat's flagship hackathon — a 36-hour marathon of innovation, collaboration, and relentless building. Now in its 9th edition, DotSlash 9.0 held on <strong style="color:var(--acl)">21 &amp; 22 March 2025</strong> brought together bright minds from institutions across the country.</p>
+          <p>Organized entirely by the ACM Core 2025–26 team, DotSlash 9.0 featured themed problem statements, mentorship from industry experts, and a high-energy environment where ideas rapidly evolved into functional prototypes. Participants tackled real-world challenges spanning AI, sustainability, fintech, and social impact.</p>
+          <p>Months of behind-the-scenes planning — logistics, sponsorships, problem curation, judge coordination — culminated in an event that the chapter is immensely proud of. Every sleepless night was worth it. ✨</p>
+          <div class="ach-detail-meta">
+            <span class="ach-detail-tag">Hackathon</span>
+            <span class="ach-detail-tag">36 Hours</span>
+            <span class="ach-detail-tag">March 2025</span>
+            <span class="ach-detail-tag">Edition 9</span>
+            <span class="ach-detail-tag">NIT Surat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ach-card" data-delay="2">
+      <span class="ach-card-icon">🌐</span>
+      <div class="ach-card-num">03</div>
+      <div class="ach-card-label">Web Development</div>
+      <div class="ach-card-title">ACM Website Revamp</div>
+      <p class="ach-card-desc">The ACM NIT Surat website was completely revamped by the 2023–24 core team — a sleek, animated platform serving as the chapter's digital home and resource hub.</p>
+      <button class="ach-card-toggle" aria-expanded="false"><span class="ach-card-toggle-text"></span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="ach-card-detail">
+        <div class="ach-detail-inner">
+          <p>The ACM NIT Surat website underwent a complete ground-up rebuild by the <strong style="color:var(--acl)">Core Team 2023–24</strong>. Moving away from a dated static site, the revamped platform was built with modern web technologies including <strong style="color:var(--ac)">GSAP animations</strong>, smooth page transitions, and a fully responsive layout.</p>
+          <p>The new website serves as the chapter's primary digital presence — showcasing events, projects, achievements, blogs, and the core team. It incorporates scroll-triggered reveals, a custom cursor, particle effects, and a cohesive dark design language that reflects the chapter's technical identity.</p>
+          <p>Beyond aesthetics, the revamp streamlined information architecture, making it easier for students to discover resources, join events, and learn about the chapter's legacy. It stands as a testament to ACM's commitment to craftsmanship in everything it builds.</p>
+          <div class="ach-detail-meta">
+            <span class="ach-detail-tag">2023–24</span>
+            <span class="ach-detail-tag">GSAP</span>
+            <span class="ach-detail-tag">Responsive Design</span>
+            <span class="ach-detail-tag">Web Dev</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ach-card" data-delay="3">
+      <span class="ach-card-icon">📦</span>
+      <div class="ach-card-num">04</div>
+      <div class="ach-card-label">Open Source</div>
+      <div class="ach-card-title">ButterFlask-UI Framework</div>
+      <p class="ach-card-desc">A modern Python framework for building responsive web UIs with a Flutter-inspired widget model, conceived and built by ACM NIT Surat members and open-sourced to the community.</p>
+      <button class="ach-card-toggle" aria-expanded="false"><span class="ach-card-toggle-text"></span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="ach-card-detail">
+        <div class="ach-detail-inner">
+          <p><strong style="color:var(--acl)">ButterFlask-UI</strong> is an open-source Python framework developed by ACM NIT Surat members that bridges the gap between backend Python developers and modern frontend UI development. Inspired by Flutter's declarative widget model, it allows developers to compose web interfaces using Python constructs — no deep HTML/CSS/JS knowledge required.</p>
+          <p>The framework enables rapid prototyping of responsive UIs by providing a library of composable, styleable widgets backed by a Flask server. This makes it especially powerful for data scientists and backend engineers who want to build interactive web apps without switching context to a different language or framework.</p>
+          <p>Being open-sourced, ButterFlask-UI represents ACM NIT Surat's commitment to contributing back to the broader developer community — a proud moment for the chapter beyond its campus borders. 🌍</p>
+          <div class="ach-detail-meta">
+            <span class="ach-detail-tag">Open Source</span>
+            <span class="ach-detail-tag">Python</span>
+            <span class="ach-detail-tag">Flask</span>
+            <span class="ach-detail-tag">Flutter-inspired</span>
+            <span class="ach-detail-tag">UI Framework</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ach-card" data-delay="4">
+      <span class="ach-card-icon">🧠</span>
+      <div class="ach-card-num">05</div>
+      <div class="ach-card-label">Education</div>
+      <div class="ach-card-title">ML Workshop Series</div>
+      <p class="ach-card-desc">Over 200 students trained across multiple ML workshop series — from linear regression fundamentals to neural networks — with hands-on notebooks and real-world datasets.</p>
+      <button class="ach-card-toggle" aria-expanded="false"><span class="ach-card-toggle-text"></span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="ach-card-detail">
+        <div class="ach-detail-inner">
+          <p>Launched by the <strong style="color:var(--acl)">ACM Core 2022–23</strong> team, the Machine Learning Workshop Series was designed to make ML accessible and practical for students at every level — from curious freshers to aspiring data scientists. The series spanned multiple sessions over the academic year, each building on the last.</p>
+          <p>Topics covered included <strong style="color:var(--ac)">linear regression, classification, clustering, decision trees, and introductory neural networks</strong> — all taught through interactive Jupyter notebooks and applied to real-world datasets. Sessions emphasized intuition-building over theory-heavy lectures, with live coding and Q&A built into every workshop.</p>
+          <p>With <strong style="color:var(--acl)">200+ students trained</strong>, the series significantly raised the ML literacy floor at NIT Surat and served as a launching pad for many students' AI/ML journeys. Several participants went on to pursue research, internships, and projects in the field.</p>
+          <div class="ach-detail-meta">
+            <span class="ach-detail-tag">Machine Learning</span>
+            <span class="ach-detail-tag">200+ Students</span>
+            <span class="ach-detail-tag">2022–23</span>
+            <span class="ach-detail-tag">Jupyter</span>
+            <span class="ach-detail-tag">Hands-on</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ach-card" data-delay="5">
+      <span class="ach-card-icon">⚡</span>
+      <div class="ach-card-num">06</div>
+      <div class="ach-card-label">Community Building</div>
+      <div class="ach-card-title">14 Years &amp; Still Growing</div>
+      <p class="ach-card-desc">From 2011 to 2025 — 14 years of building a culture of computing at NIT Surat. Hundreds of alumni, dozens of events, and a legacy that continues to inspire every incoming batch.</p>
+      <button class="ach-card-toggle" aria-expanded="false"><span class="ach-card-toggle-text"></span><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="ach-card-detail">
+        <div class="ach-detail-inner">
+          <p>The ACM Student Chapter at NIT Surat was established in <strong style="color:var(--acl)">2011</strong> — making it one of the longest-running technical student bodies at the institute. What started as a small group of passionate coders has grown into a thriving community that shapes the technical culture of an entire campus.</p>
+          <p>Over 14 years, the chapter has organized <strong style="color:var(--ac)">hackathons, coding contests, workshops, seminars, and industry talks</strong>. It has been the birthplace of competitive programmers, open-source contributors, startup founders, and engineering leaders. Each batch of core members inherits a legacy and adds their own chapter to it.</p>
+          <p>The alumni network spans top tech companies and research institutions globally. Many cite ACM NIT Surat as the environment that first challenged them, shaped their skills, and showed them what was possible. 14 years in — and the best chapters are still being written. 🏛️</p>
+          <div class="ach-detail-meta">
+            <span class="ach-detail-tag">Since 2011</span>
+            <span class="ach-detail-tag">14+ Years</span>
+            <span class="ach-detail-tag">500+ Students</span>
+            <span class="ach-detail-tag">Alumni Network</span>
+            <span class="ach-detail-tag">Legacy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TIMELINE ══ -->
+<section id="timeline-section">
+  <div class="sec-label" id="tlLabel">// Journey through the years</div>
+  <h2 class="tl-heading">Our <span class="grad">Timeline</span></h2>
+
+  <div class="timeline">
+    <div class="tl-item" id="tl1">
+      <div class="tl-dot"></div>
+      <div class="tl-year"><span>2025–26</span></div>
+      <div class="tl-title">ICPC Asia West Regionals + DotSlash 9.0</div>
+      <p class="tl-body">Team skill_issue qualifies for and competes in ICPC Amritapuri &amp; Chennai region. DotSlash 9.0 successfully organized by ACM Core 2025–26 — 36 hours of code, creativity, and impact.</p>
+    </div>
+    <div class="tl-item" id="tl2">
+      <div class="tl-dot"></div>
+      <div class="tl-year"><span>2023–24</span></div>
+      <div class="tl-title">Website Revamp &amp; ButterFlask-UI Launch</div>
+      <p class="tl-body">Complete overhaul of the ACM chapter website with GSAP animations. Launch of ButterFlask-UI — an open-source Python framework for widget-based web development. DotSlash 8.0 successfully organized.</p>
+    </div>
+    <div class="tl-item" id="tl3">
+      <div class="tl-dot"></div>
+      <div class="tl-year"><span>2022–23</span></div>
+      <div class="tl-title">ML Workshop Series &amp; CP Platform</div>
+      <p class="tl-body">Launched the Machine Learning Workshop Series training 200+ students. Built an in-house competitive programming judge platform powering all chapter-level coding contests.</p>
+    </div>
+    <div class="tl-item" id="tl4">
+      <div class="tl-dot"></div>
+      <div class="tl-year"><span>2011</span></div>
+      <div class="tl-title">ACM NIT Surat Chapter Founded</div>
+      <p class="tl-body">The ACM student chapter at NIT Surat was established — laying the foundation for a community that would go on to produce competitive programmers, open-source contributors, and technology leaders.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section id="cta-section">
+  <div class="cta-inner">
+    <div class="cta-label" id="ctaLabel">// Be Part of the Legacy</div>
+    <h2 class="cta-heading">
+      <span class="line"><span class="word">Write</span></span>
+      <span class="line"><span class="word grad">Your Story</span></span>
+    </h2>
+    <p class="cta-desc" id="ctaDesc">Every achievement here started with a student who decided to show up. The next chapter of ACM NIT Surat's legacy is yours to write.</p>
+    <div class="cta-btns" id="ctaBtns">
+      <a href="team.html" class="btn-gold">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Meet the Team
+      </a>
+      <a href="projects.html" class="btn-outline-gold">View Projects</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="index.html" class="footer-logo">
+        <div class="footer-diamond">
+          <div style="width:22px;height:22px;border-radius:50%;border:1.5px solid var(--w);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center">
+            <span style="font-family:var(--fu);font-weight:700;font-size:.45rem;color:var(--w);transform:rotate(45deg)">ACM</span>
+          </div>
+        </div>
+        <span class="nav-name">ACM<small>NIT Surat Chapter</small></span>
+      </a>
+      <p class="footer-tagline">Advancing computing as a science &amp; profession — one achievement at a time.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="projects.html">Projects</a></li><li><a href="#">Events</a></li><li><a href="blogs.html">Blog</a></li></ul></div>
+      <div class="footer-col"><h4>Chapter</h4><ul><li><a href="#">About Us</a></li><li><a href="team.html">Core Team</a></li><li><a href="#">Join ACM</a></li><li><a href="#">Contact</a></li></ul></div>
+      <div class="footer-col"><h4>Connect</h4><ul><li><a href="#">GitHub</a></li><li><a href="#">LinkedIn</a></li><li><a href="#">Instagram</a></li><li><a href="#">Discord</a></li></ul></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 <span>ACM NIT Surat</span> · All rights reserved</p>
+    <p class="footer-copy">Built with <span>♥</span> by the ACM Core Team</p>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, CustomEase);
+CustomEase.create('expo', 'M0,0 C0.16,1 0.3,1 1,1');
+
+/* ── CURSOR ──────────────────────────────────────── */
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function ac() {
+  gsap.set(cursor, { x: mx, y: my });
+  rx += (mx - rx) * .12; ry += (my - ry) * .12;
+  gsap.set(cursorRing, { x: rx, y: ry });
+  requestAnimationFrame(ac);
+})();
+
+/* ── PROGRESS ────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  document.getElementById('ppf').style.width =
+    (window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100) + '%';
+});
+
+/* ── LOADER ──────────────────────────────────────── */
+const lBar = document.getElementById('lBar'), lPct = document.getElementById('lPct');
+function setP(v) { lBar.style.width = v + '%'; lPct.textContent = String(Math.round(v)).padStart(3,'0') + '%'; }
+const ltl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+ltl
+  .to('.lc', { opacity: 1, duration: .5, stagger: .1 }, 0)
+  .to('.l-trophy', { opacity: 1, scale: 1, rotation: 0, duration: .8, ease: 'back.out(1.5)' }, 0.2)
+  .to('.l-sub', { opacity: 1, duration: .6 }, 0.4)
+  .to('#lPct', { opacity: 1, duration: .4 }, 0.5)
+  .to('#lw1 span', { y: 0, opacity: 1, duration: .9, stagger: .07, ease: 'back.out(1.7)' }, 0.5)
+  .to({}, { duration: 1.8, onUpdate: function() { setP(this.progress() * 100); }, ease: 'power1.inOut' }, 0.9)
+  .to('.lc, .l-trophy, .l-sub, #lPct, #lw1', { opacity: 0, duration: .3 }, 3.1)
+  .to('#lpT', { scaleY: 1, duration: .5, ease: 'power4.inOut' }, 3.2)
+  .to('#lpB', { scaleY: 1, duration: .5, ease: 'power4.inOut' }, 3.2)
+  .to('#lpT', { scaleY: 0, duration: .5, ease: 'power4.inOut' }, 3.7)
+  .to('#lpB', { scaleY: 0, duration: .5, ease: 'power4.inOut' }, 3.7)
+  .to('#loader', { opacity: 0, duration: .4, pointerEvents: 'none', onComplete: () => { document.getElementById('loader').style.display = 'none'; } }, 4.0)
+  .to('#navbar', { opacity: 1, y: 0, duration: .7 }, 3.95)
+  .to('#hEye', { opacity: 1, duration: .6 }, 4.2)
+  .to('.h-title .word', { y: 0, duration: .9, stagger: .12, ease: 'expo.out' }, 4.3)
+  .to('#hMeta', { opacity: 1, duration: .7 }, 4.75)
+  .to('#tRing', { opacity: 1, duration: 1.2 }, 4.1);
+
+/* ── HERO CANVAS ─────────────────────────────────── */
+const hc = document.getElementById('hero-canvas');
+const hctx = hc.getContext('2d');
+function hR() { hc.width = hc.offsetWidth; hc.height = hc.offsetHeight; }
+hR(); window.addEventListener('resize', hR);
+let mhx = innerWidth / 2, mhy = innerHeight / 2;
+document.addEventListener('mousemove', e => { mhx = e.clientX; mhy = e.clientY; });
+const hdots = [];
+for (let i = 0; i < 90; i++) hdots.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, vx: (Math.random() - .5) * .2, vy: (Math.random() - .5) * .2, r: Math.random() * 1.4 + .4, hue: Math.random() > .5 ? 195 : 210 });
+(function dH() {
+  hctx.clearRect(0, 0, hc.width, hc.height);
+  hdots.forEach(d => {
+    d.x += d.vx; d.y += d.vy;
+    if (d.x < 0 || d.x > hc.width) d.vx *= -1;
+    if (d.y < 0 || d.y > hc.height) d.vy *= -1;
+    const dist = Math.hypot(d.x - mhx, d.y - mhy);
+    const a = Math.max(0, .6 - dist / 450);
+    const c = d.hue === 42 ? `rgba(58,155,213,${a})` : `rgba(110,198,240,${a * .7})`;
+    hctx.beginPath(); hctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+    hctx.fillStyle = c; hctx.fill();
+  });
+  for (let i = 0; i < hdots.length; i++) {
+    for (let j = i + 1; j < hdots.length; j++) {
+      const d = Math.hypot(hdots[i].x - hdots[j].x, hdots[i].y - hdots[j].y);
+      if (d < 110) {
+        hctx.beginPath(); hctx.moveTo(hdots[i].x, hdots[i].y); hctx.lineTo(hdots[j].x, hdots[j].y);
+        const ga = (.15 * (1 - d / 110)).toFixed(3);
+        hctx.strokeStyle = `rgba(58,155,213,${ga})`; hctx.lineWidth = .4; hctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(dH);
+})();
+
+/* ── TROPHY RING ROTATION ────────────────────────── */
+gsap.to('.tr-outer', { rotation: 360, duration: 50, repeat: -1, ease: 'none', transformOrigin: '50% 50%' });
+gsap.to('.tr-mid', { rotation: -360, duration: 35, repeat: -1, ease: 'none', transformOrigin: '50% 50%' });
+gsap.to('.tr-icon', { y: -10, duration: 2.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+
+/* ── NAV HIDE/SHOW ───────────────────────────────── */
+let lastY = 0;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY, nav = document.getElementById('navbar');
+  nav.style.transform = y > lastY && y > 120 ? 'translateY(-100%)' : 'translateY(0)';
+  lastY = y;
+});
+
+/* ── PARALLAX ────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  document.querySelector('.hero-glow').style.transform = `translateY(${y * .12}px)`;
+  const tr = document.getElementById('tRing');
+  if (tr) tr.style.transform = `translateY(calc(-50% + ${y * .06}px))`;
+});
+
+/* ── ICPC CARD GLOW FOLLOW ───────────────────────── */
+const icpcCard = document.getElementById('icpcCard');
+icpcCard.addEventListener('mousemove', e => {
+  const r = icpcCard.getBoundingClientRect();
+  icpcCard.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+  icpcCard.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  const dx = (e.clientX - r.left - r.width / 2) / r.width * 4;
+  const dy = (e.clientY - r.top - r.height / 2) / r.height * 4;
+  gsap.to(icpcCard, { rotateX: -dy, rotateY: dx, duration: .4, ease: 'power2.out', transformPerspective: 900, transformOrigin: '50% 50%' });
+});
+icpcCard.addEventListener('mouseleave', () => gsap.to(icpcCard, { rotateX: 0, rotateY: 0, duration: .8, ease: 'elastic.out(1,.7)' }));
+
+const dsCard = document.getElementById('dsCard');
+dsCard.addEventListener('mousemove', e => {
+  const r = dsCard.getBoundingClientRect();
+  const dx = (e.clientX - r.left - r.width / 2) / r.width * 3;
+  const dy = (e.clientY - r.top - r.height / 2) / r.height * 3;
+  gsap.to(dsCard, { rotateX: -dy, rotateY: dx, duration: .5, ease: 'power2.out', transformPerspective: 900, transformOrigin: '50% 50%' });
+});
+dsCard.addEventListener('mouseleave', () => gsap.to(dsCard, { rotateX: 0, rotateY: 0, duration: .9, ease: 'elastic.out(1,.7)' }));
+
+/* ── ACH CARD TILT ───────────────────────────────── */
+document.querySelectorAll('.ach-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const dx = (e.clientX - r.left - r.width / 2) / r.width * 8;
+    const dy = (e.clientY - r.top - r.height / 2) / r.height * 8;
+    gsap.to(card, { rotateX: -dy, rotateY: dx, duration: .4, ease: 'power2.out', transformPerspective: 600, transformOrigin: '50% 50%', zIndex: 2 });
+  });
+  card.addEventListener('mouseleave', () => gsap.to(card, { rotateX: 0, rotateY: 0, duration: .7, ease: 'elastic.out(1,.7)', zIndex: 1 }));
+});
+
+/* ── ACH CARD DETAIL TOGGLE ──────────────────────── */
+document.querySelectorAll('.ach-card-toggle').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const card = btn.closest('.ach-card');
+    const isExpanded = card.classList.contains('expanded');
+    card.classList.toggle('expanded', !isExpanded);
+    btn.setAttribute('aria-expanded', String(!isExpanded));
+    // Reset tilt when expanding to avoid layout glitch
+    gsap.to(card, { rotateX: 0, rotateY: 0, duration: .3, ease: 'power2.out' });
+  });
+});
+
+/* ── SCROLLTRIGGER REVEALS ───────────────────────── */
+// Section labels
+gsap.utils.toArray('.sec-label').forEach(el => {
+  gsap.to(el, { opacity: 1, x: 0, duration: .7, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
+});
+
+// Stats
+gsap.to('.stat-block', {
+  opacity: 1, y: 0, duration: .8, stagger: .12, ease: 'expo.out',
+  scrollTrigger: {
+    trigger: '#stats-strip', start: 'top 80%',
+    onEnter: () => {
+      document.querySelectorAll('.stat-num').forEach(el => {
+        const t = +el.dataset.t;
+        gsap.to({ v: 0 }, { v: t, duration: 2.2, ease: 'power2.out', onUpdate: function() { el.textContent = Math.round(this.targets()[0].v) + (t >= 100 ? '+' : ''); } });
+      });
+    }
+  }
+});
+
+// ICPC card
+gsap.to('#icpcCard', {
+  opacity: 1, y: 0, duration: 1.1, ease: 'expo.out',
+  scrollTrigger: { trigger: '#icpcCard', start: 'top 78%' }
+});
+
+// DotSlash card
+gsap.to('#dsCard', {
+  opacity: 1, y: 0, duration: 1.1, ease: 'expo.out',
+  scrollTrigger: { trigger: '#dsCard', start: 'top 78%' }
+});
+
+// Achievement grid
+gsap.to('.ach-card', {
+  opacity: 1, y: 0, duration: .8, stagger: { amount: 0.8 }, ease: 'expo.out',
+  scrollTrigger: { trigger: '.ach-grid', start: 'top 82%' }
+});
+
+// Timeline items
+gsap.utils.toArray('.tl-item').forEach((el, i) => {
+  gsap.to(el, {
+    opacity: 1, x: 0, duration: .8, ease: 'expo.out',
+    scrollTrigger: { trigger: el, start: 'top 85%' }
+  });
+});
+
+// CTA
+gsap.to('#ctaLabel', { opacity: 1, duration: .6, scrollTrigger: { trigger: '#cta-section', start: 'top 85%' } });
+gsap.utils.toArray('.cta-heading .word').forEach((el, i) => {
+  ScrollTrigger.create({
+    trigger: el, start: 'top 85%',
+    onEnter: () => gsap.to(el, { y: 0, duration: .9, delay: i * .1, ease: 'expo.out' })
+  });
+});
+gsap.to('#ctaDesc', { opacity: 1, duration: .7, scrollTrigger: { trigger: '#ctaDesc', start: 'top 88%' } });
+gsap.to('#ctaBtns', { opacity: 1, duration: .7, scrollTrigger: { trigger: '#ctaBtns', start: 'top 90%' } });
+
+// Footer
+gsap.from('.footer-top > *', { y: 30, opacity: 0, duration: .8, stagger: .15, ease: 'expo.out', scrollTrigger: { trigger: 'footer', start: 'top 85%' } });
+
+/* ── IMAGE PARALLAX on scroll ────────────────────── */
+ScrollTrigger.create({
+  trigger: '#icpcCard',
+  start: 'top bottom',
+  end: 'bottom top',
+  onUpdate: self => {
+    const img = document.getElementById('icpcImg');
+    if (img) gsap.to(img, { y: self.progress * 30 - 15, duration: .3, ease: 'none' });
+  }
+});
+ScrollTrigger.create({
+  trigger: '#dsCard',
+  start: 'top bottom',
+  end: 'bottom top',
+  onUpdate: self => {
+    const img = document.getElementById('dsImg');
+    if (img) gsap.to(img, { y: self.progress * 30 - 15, duration: .3, ease: 'none' });
+  }
+});
+</script>
+</body>
+</html>

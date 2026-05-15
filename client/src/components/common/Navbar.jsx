@@ -47,7 +47,7 @@ export default function Navbar() {
           {navLinks.map((item) => (
             <li key={item}>
               <NavLink 
-                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                to={item === 'Home' ? '/' : item === 'Contact' ? '/#contact' : `/${item.toLowerCase()}`}
                 style={({ isActive }) => ({ color: isActive ? 'var(--w)' : '' })}
               >
                 {item}
@@ -72,7 +72,7 @@ export default function Navbar() {
           {navLinks.map((item) => (
             <NavLink
               key={item}
-              to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+              to={item === 'Home' ? '/' : item === 'Contact' ? '/#contact' : `/${item.toLowerCase()}`}
               className="text-2xl text-white font-['Rajdhani'] uppercase tracking-widest font-bold"
               onClick={() => setMenuOpen(false)}
             >

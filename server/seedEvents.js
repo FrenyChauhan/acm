@@ -15,7 +15,7 @@ const FALLBACK_EVENTS = [
     bannerGradient:"linear-gradient(135deg, #064E3B, #059669)", year:2022
   },
   {
-    title:"Epiphany 12.1", slug:"epiphany-12-1", category:"competition", edition:"12.1",
+    title:"Epiphany", slug:"epiphany-12-1", category:"competition", edition:"12.1",
     tagline:"National competitive programming, redefined",
     description:"Epiphany is a national-level competitive programming contest conducted at least once every year by ACM NIT Surat. The contest involves a 2–3 hour event where problems are carefully curated by ACM's own problem setters — unique, interesting, and original. Solutions are published post-contest and winners receive monetary rewards.",
     startDate:"2023-01-23", venue:"Online / Codeforces", isOnline:true, isFlagship:true,
@@ -24,7 +24,7 @@ const FALLBACK_EVENTS = [
     bannerGradient:"linear-gradient(135deg, #1E3A8A, #2563EB)", year:2023
   },
   {
-    title:"DotSlash 6.0", slug:"dotslash-6-0", category:"hackathon", edition:"6.0",
+    title:"DotSlash", slug:"dotslash-6-0", category:"hackathon", edition:"6.0",
     tagline:"30 hours. One mission. Build something that matters.",
     description:"The flagship event of ACM NIT Surat, DotSlash is a 30-hour national-level hackathon organized annually in association with Research Park at SVNIT, Surat. DotSlash is one of the biggest hackathons in Gujarat — teams from all over India register, with 40 selected to compete offline. Teams work for 30 hours straight building innovative solutions. Mentors provide assistance in ideas, inspiration, technical help and critiques. Top 3 winning teams receive monetary rewards.",
     startDate:"2023-02-18", endDate:"2023-02-19", venue:"Research Park, SVNIT Surat",
@@ -71,7 +71,7 @@ const FALLBACK_EVENTS = [
     bannerGradient:"linear-gradient(135deg, #042F2E, #0F766E)", year:2023
   },
   {
-    title:"Inception 8.0", slug:"inception-8-0", category:"competition", edition:"8.0",
+    title:"Inception", slug:"inception-8-0", category:"competition", edition:"8.0",
     tagline:"The college-level CP battle returns",
     description:"On 27th October 2023, ACM NIT Surat conducted the 8th iteration of Inception — the college-level competitive programming contest. The contest took place 1:30 PM–4:30 PM in Lab I and Lab II at the Central Computer Centre (CCC). Students competed in groups of two or three. Both second and third-year students participated, with prize money of ₹3,000 distributed among the three winning teams.",
     startDate:"2023-10-27", venue:"Lab I & II, Central Computer Centre, SVNIT",
@@ -80,19 +80,19 @@ const FALLBACK_EVENTS = [
     bannerGradient:"linear-gradient(135deg, #1E3A8A, #0066FF)", year:2023
   },
   {
-    title:"DotSlash 7.0", slug:"dotslash-7-0", category:"hackathon", edition:"7.0",
+    title:"DotSlash", slug:"dotslash-7-0", category:"hackathon", edition:"7.0",
     description:"National 30-hour hackathon returns. Bigger problem statements, more teams, higher stakes.",
     startDate:"2024-02-15", isUpcoming: true, year: 2024,
     bannerGradient:"linear-gradient(135deg,#7F1D1D,#DC2626)"
   },
   {
-    title:"Epiphany 13.0", slug:"epiphany-13-0", category:"competition", edition:"13.0",
+    title:"Epiphany", slug:"epiphany-13-0", category:"competition", edition:"13.0",
     description:"The next iteration of ACM NIT Surat's national competitive programming contest on Codeforces.",
     startDate:"2024-01-28", isUpcoming: true, year: 2024,
     bannerGradient:"linear-gradient(135deg,#1E3A8A,#2563EB)"
   },
   {
-    title:"Inception 9.0", slug:"inception-9-0", category:"competition", edition:"9.0",
+    title:"Inception", slug:"inception-9-0", category:"competition", edition:"9.0",
     description:"9th edition of the college-level team CP contest. New problems, same intensity.",
     startDate:"2024-10-18", isUpcoming: true, year: 2024,
     bannerGradient:"linear-gradient(135deg,#1E3A8A,#0066FF)"

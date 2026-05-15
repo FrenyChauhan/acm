@@ -268,8 +268,24 @@ export default function Events() {
   const timelineEvents = [...events].sort((a,b) => new Date(a.startDate) - new Date(b.startDate));
   const upcomingEvents = events.filter(e => new Date(e.startDate) > new Date());
 
+  const groupedEvents = events.reduce((acc, event) => {
+    const date = new Date(event.startDate);
+    const monthName = date.toLocaleString('en-US', { month: 'long' });
+    const monthIndex = date.getMonth();
 
+    if (!acc[monthName]) {
+      acc[monthName] = { month: monthName, index: monthIndex, events: [] };
+    }
+    
+    // Deduplicate by title so we don't show "DotSlash" twice in February
+    if (!acc[monthName].events.some(e => e.title === event.title)) {
+      acc[monthName].events.push(event);
+    }
+    
+    return acc;
+  }, {});
 
+  const timelineMonths = Object.values(groupedEvents).sort((a, b) => a.index - b.index);
   return (
     <div ref={containerRef}>
       <Helmet>
@@ -456,18 +472,22 @@ export default function Events() {
             <svg id="tlSvg" ref={tlSvgRef} width="2" height="100%"><line id="tlPath" ref={tlPathRef} x1="1" y1="0" x2="1" y2="100%" stroke="rgba(58,155,213,0.25)" strokeWidth="2" strokeDasharray="8 6"/></svg>
           </div>
           <div className="timeline-items" id="timeline-items">
-            {timelineEvents.map((item, i) => (
-              <div key={item._id} className="tl-item">
-                <div className={i % 2 === 0 ? 'tl-left' : 'tl-right'}>
-                  <div className="tl-event-name">{sanitizeTitle(item.title)}{item.achievement && <span className="milestone-star">⭐</span>}</div>
-                  <div className="tl-desc">{item.tagline || (item.description && item.description.slice(0,60)+'...')}</div>
-                  <div style={{marginTop:'.6rem'}}><span className={`cat-pill ${item.category}`} style={{fontSize:'.5rem', padding:'.2rem .6rem'}}>{item.category}</span></div>
+            {timelineMonths.map((group, i) => (
+              <div key={group.month} className="tl-item">
+                <div className="tl-left">
+                  {group.events.map((item, idx) => (
+                    <div key={item._id} className="tl-event-box" style={{marginBottom: idx !== group.events.length - 1 ? '1.8rem' : '0'}}>
+                      <div className="tl-event-name">{sanitizeTitle(item.title)}{item.achievement && <span className="milestone-star">⭐</span>}</div>
+                      <div className="tl-desc">{item.tagline || (item.description && item.description.slice(0,60)+'...')}</div>
+                      <div style={{marginTop:'.6rem'}}><span className={`cat-pill ${item.category}`} style={{fontSize:'.5rem', padding:'.2rem .6rem', marginBottom:0}}>{item.category}</span></div>
+                    </div>
+                  ))}
                 </div>
                 <div className="tl-center">
                   <div className="tl-dot"></div>
-                  <div className="tl-date">{fmtDate(item.startDate)}</div>
+                  <div className="tl-date">{group.month}</div>
                 </div>
-                <div className={i % 2 === 0 ? 'tl-right' : 'tl-left'}></div>
+                <div className="tl-right"></div>
               </div>
             ))}
           </div>

@@ -59,10 +59,15 @@ export default function Blogs() {
             .to('#heroMeta', { opacity: 1, duration: 0.7 }, "-=0.4");
 
       // Scroll reveals
-      gsap.to('#featLabel', { opacity: 1, x: 0, duration: 0.7, ease: 'expo.out', scrollTrigger: { trigger: '#featLabel', start: 'top 88%' } });
-      gsap.to('#featCard', { opacity: 1, y: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '#featCard', start: 'top 80%' } });
+      if (document.querySelector('#featLabel')) {
+        gsap.to('#featLabel', { opacity: 1, x: 0, duration: 0.7, ease: 'expo.out', scrollTrigger: { trigger: '#featLabel', start: 'top 88%' } });
+        gsap.to('#featCard', { opacity: 1, y: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '#featCard', start: 'top 80%' } });
+      }
       
-      gsap.to('.blog-card', { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'expo.out', scrollTrigger: { trigger: '#blogGrid', start: 'top 80%' } });
+      const blogCards = gsap.utils.toArray('.blog-card');
+      if (blogCards.length > 0) {
+        gsap.to(blogCards, { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'expo.out', scrollTrigger: { trigger: '#blogGrid', start: 'top 80%' } });
+      }
 
       document.querySelectorAll('.bc-title-word').forEach(el => {
         ScrollTrigger.create({

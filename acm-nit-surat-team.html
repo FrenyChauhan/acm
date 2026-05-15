@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Team — ACM NIT Surat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --b:#04090f;--b1:#081320;--b2:#0c1e33;
+  --ac:#3a9bd5;--acl:#6ec6f0;--acd:#1a5c8a;
+  --w:#fff;
+  --w5:rgba(255,255,255,.05);--w10:rgba(255,255,255,.10);
+  --w20:rgba(255,255,255,.20);--w40:rgba(255,255,255,.40);--w60:rgba(255,255,255,.60);
+  --ac10:rgba(58,155,213,.10);--ac20:rgba(58,155,213,.20);--ac40:rgba(58,155,213,.40);
+  --fd:'Bebas Neue',sans-serif;
+  --fu:'Rajdhani',sans-serif;
+  --fm:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--b);color:var(--w);font-family:var(--fu);overflow-x:hidden;cursor:none}
+
+/* ── CURSOR ── */
+#cursor{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--ac);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .2s,height .2s,background .2s}
+#cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;border:1px solid var(--ac40);pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
+body:has(a:hover) #cursor,body:has(button:hover) #cursor{width:18px;height:18px;background:var(--acl)}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:52px;height:52px;border-color:var(--ac)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--b1)}
+::-webkit-scrollbar-thumb{background:var(--acd);border-radius:2px}
+
+/* ── PROGRESS ── */
+#pp{position:fixed;top:0;left:0;right:0;height:2px;z-index:9001;background:var(--w5)}
+#ppf{height:100%;width:0%;background:linear-gradient(90deg,var(--ac),var(--acl));box-shadow:0 0 8px var(--acl)}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--b);overflow:hidden}
+#loader::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--ac10) 1px,transparent 1px),linear-gradient(90deg,var(--ac10) 1px,transparent 1px);background-size:60px 60px;animation:gp 3s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.3}50%{opacity:.8}}
+.lc{position:absolute;width:24px;height:24px;opacity:0}
+.lc.tl{top:20px;left:20px;border-top:1px solid var(--ac);border-left:1px solid var(--ac)}
+.lc.tr{top:20px;right:20px;border-top:1px solid var(--ac);border-right:1px solid var(--ac)}
+.lc.bl{bottom:20px;left:20px;border-bottom:1px solid var(--ac);border-left:1px solid var(--ac)}
+.lc.br{bottom:20px;right:20px;border-bottom:1px solid var(--ac);border-right:1px solid var(--ac)}
+.l-center{display:flex;flex-direction:column;align-items:center;gap:1.5rem;position:relative;z-index:2}
+.l-word{font-family:var(--fd);font-size:clamp(3rem,8vw,7rem);letter-spacing:.14em;color:var(--w);display:block;overflow:hidden}
+.l-word span{display:inline-block;transform:translateY(110%);opacity:0}
+.l-sub{font-family:var(--fm);font-size:.62rem;letter-spacing:.42em;color:var(--acl);text-transform:uppercase;opacity:0}
+.l-bar-wrap{width:200px;height:1px;background:var(--ac20);overflow:hidden}
+.l-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--ac),var(--acl));box-shadow:0 0 8px var(--acl)}
+.l-pct{font-family:var(--fm);font-size:.58rem;letter-spacing:.15em;color:var(--ac40);text-align:center;margin-top:5px;opacity:0}
+.l-panel{position:absolute;width:100%;height:50%;background:var(--b);z-index:10}
+.l-panel.top{top:0;transform:scaleY(0);transform-origin:top}
+.l-panel.bot{bottom:0;transform:scaleY(0);transform-origin:bottom}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 clamp(1.5rem,4vw,4rem);height:70px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,9,15,.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--w5);opacity:0;transform:translateY(-100%)}
+.nav-logo{display:flex;align-items:center;gap:14px;text-decoration:none}
+.nav-diamond{width:36px;height:36px;background:linear-gradient(135deg,var(--acl),var(--ac),var(--acd));transform:rotate(45deg);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px var(--ac40)}
+.nav-diamond-inner{width:26px;height:26px;border-radius:50%;border:2px solid var(--w);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center}
+.nav-diamond-inner span{font-family:var(--fu);font-weight:700;font-size:.55rem;color:var(--w);letter-spacing:.04em}
+.nav-name{font-family:var(--fu);font-weight:700;font-size:1.1rem;letter-spacing:.08em;color:var(--w)}
+.nav-name small{display:block;font-weight:300;font-size:.65rem;letter-spacing:.2em;color:var(--acl);text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:clamp(1rem,2.5vw,2.5rem);list-style:none}
+.nav-links a{font-family:var(--fu);font-weight:600;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;color:var(--w60);text-decoration:none;position:relative;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--acl);transition:width .35s ease}
+.nav-links a:hover{color:var(--w)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-links a.active{color:var(--acl)}
+.nav-join{font-family:var(--fm);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;padding:.55rem 1.4rem;border:1px solid var(--ac);background:transparent;color:var(--acl);cursor:none;position:relative;overflow:hidden;transition:color .3s;text-decoration:none}
+.nav-join::before{content:'';position:absolute;inset:0;background:var(--ac);transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
+.nav-join:hover{color:var(--w)}
+.nav-join:hover::before{transform:scaleX(1)}
+.nav-join span{position:relative;z-index:1}
+
+/* ── HERO ── */
+#team-hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;overflow:hidden;padding:70px clamp(1.5rem,6vw,7rem) 0}
+#hero-canvas{position:absolute;inset:0;pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--ac10) 1px,transparent 1px),linear-gradient(90deg,var(--ac10) 1px,transparent 1px);background-size:70px 70px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
+.hero-glow{position:absolute;top:10%;right:5%;width:700px;height:700px;background:radial-gradient(circle,rgba(58,155,213,.13) 0%,transparent 70%);filter:blur(50px);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-15%;left:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(26,92,138,.18) 0%,transparent 70%);filter:blur(60px);pointer-events:none}
+
+/* floating year rings behind hero */
+.hero-ring{position:absolute;border-radius:50%;border:1px solid var(--ac10);pointer-events:none;opacity:0}
+.hero-ring.r1{width:min(90vw,800px);height:min(90vw,800px);right:-15vw;top:50%;transform:translateY(-50%);border-color:var(--ac10)}
+.hero-ring.r2{width:min(65vw,600px);height:min(65vw,600px);right:-8vw;top:50%;transform:translateY(-50%);border-color:var(--ac20);border-style:dashed}
+.hero-ring.r3{width:min(42vw,400px);height:min(42vw,400px);right:0vw;top:50%;transform:translateY(-50%);border-color:var(--ac40)}
+
+.hero-content{position:relative;z-index:2;padding-bottom:clamp(3rem,8vh,6rem);width:100%}
+.h-eyebrow{font-family:var(--fm);font-size:.7rem;letter-spacing:.45em;color:var(--acl);text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:1.8rem;opacity:0}
+.h-eyebrow::before{content:'';display:block;width:40px;height:1px;background:var(--acl)}
+.h-tag{background:var(--ac10);border:1px solid var(--ac20);padding:.25rem .8rem;font-size:.65rem;letter-spacing:.2em;color:var(--acl)}
+.h-title{font-family:var(--fd);font-size:clamp(5rem,14vw,13rem);line-height:.85;letter-spacing:.02em;text-transform:uppercase;margin-bottom:2rem}
+.h-title .line{display:block;overflow:hidden}
+.h-title .word{display:inline-block;transform:translateY(110%)}
+.h-title .grad{background:linear-gradient(90deg,var(--acl),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.h-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;border-top:1px solid var(--w5);padding-top:1.5rem;opacity:0}
+.h-desc{font-family:var(--fu);font-weight:300;font-size:1rem;line-height:1.8;color:var(--w60);max-width:520px}
+.h-scroll{display:flex;align-items:center;gap:10px;font-family:var(--fm);font-size:.6rem;letter-spacing:.25em;color:var(--w40);text-transform:uppercase}
+.h-scroll-line{width:40px;height:1px;background:var(--ac40);position:relative;overflow:hidden}
+.h-scroll-line::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:var(--acl);animation:sl 2s ease-in-out infinite}
+@keyframes sl{0%{left:-100%}50%,100%{left:100%}}
+
+/* big hero number */
+.h-big-num{position:absolute;right:clamp(1rem,6vw,7rem);bottom:4rem;font-family:var(--fd);font-size:clamp(8rem,18vw,16rem);color:rgba(110,198,240,.04);line-height:1;pointer-events:none;opacity:0;user-select:none}
+
+/* ── YEAR TIMELINE ── */
+#year-section{
+  position:relative;
+  background:var(--b1);
+  border-top:1px solid var(--w5);
+  border-bottom:1px solid var(--w5);
+  padding:0 clamp(1.5rem,6vw,7rem);
+  overflow:hidden;
+}
+.year-track-wrap{
+  overflow-x:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  padding:3rem 0;
+}
+.year-track-wrap::-webkit-scrollbar{display:none}
+.year-track{
+  display:flex;
+  align-items:center;
+  gap:0;
+  position:relative;
+  min-width:max-content;
+}
+/* continuous line */
+.year-track::before{
+  content:'';
+  position:absolute;
+  top:50%;transform:translateY(-50%);
+  left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--ac20) 5%,var(--ac20) 95%,transparent);
+  z-index:0;
+}
+.year-node{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;
+  gap:.9rem;
+  padding:0 1.8rem;
+  cursor:none;
+}
+.yn-dot{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--b1);border:2px solid var(--w20);
+  transition:background .3s,border-color .3s,transform .3s,box-shadow .3s;
+  flex-shrink:0;
+}
+.year-node:hover .yn-dot,.year-node.active .yn-dot{
+  background:var(--acl);
+  border-color:var(--acl);
+  transform:scale(1.4);
+  box-shadow:0 0 14px var(--acl);
+}
+.yn-label{
+  font-family:var(--fm);font-size:.62rem;letter-spacing:.2em;
+  color:var(--w20);text-transform:uppercase;
+  transition:color .3s;white-space:nowrap;
+}
+.year-node:hover .yn-label,.year-node.active .yn-label{color:var(--acl)}
+.yn-count{
+  font-family:var(--fd);font-size:1.3rem;
+  color:var(--w10);transition:color .3s;
+}
+.year-node:hover .yn-count,.year-node.active .yn-count{color:var(--acl)}
+
+/* active glow pill */
+.yn-active-pill{
+  position:absolute;bottom:-2rem;
+  font-family:var(--fm);font-size:.52rem;letter-spacing:.2em;
+  color:var(--acl);text-transform:uppercase;
+  background:var(--ac10);border:1px solid var(--ac20);
+  padding:.2rem .6rem;white-space:nowrap;
+  opacity:0;transition:opacity .3s;
+}
+.year-node.active .yn-active-pill{opacity:1}
+
+/* ── FACULTY ADVISOR ── */
+#faculty-section{
+  padding:7rem clamp(1.5rem,6vw,7rem) 5rem;
+  position:relative;overflow:hidden;
+}
+#faculty-section::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:800px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(58,155,213,.06) 0%,transparent 70%);pointer-events:none}
+.sec-label{font-family:var(--fm);font-size:.65rem;letter-spacing:.38em;color:var(--acl);text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:2rem;opacity:0;transform:translateX(-30px)}
+.sec-label::before{content:'';display:block;width:28px;height:1px;background:var(--acl)}
+.faculty-card{
+  display:grid;grid-template-columns:400px 1fr;
+  border:1px solid var(--ac20);
+  background:var(--b1);
+  overflow:hidden;
+  position:relative;
+  opacity:0;transform:translateY(50px);
+}
+.faculty-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ac),var(--acl))}
+.faculty-photo-side{
+  position:relative;overflow:hidden;
+  background:linear-gradient(160deg,var(--b2) 0%,var(--acd) 60%,var(--b) 100%);
+  display:flex;align-items:center;justify-content:center;
+  min-height:380px;
+}
+.faculty-photo-side canvas{position:absolute;inset:0;width:100%;height:100%}
+.faculty-avatar-wrap{position:relative;z-index:2;text-align:center}
+.faculty-initials-ring{
+  width:160px;height:160px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acl),var(--ac),var(--acd));
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.2rem;
+  box-shadow:0 0 60px rgba(58,155,213,.4),0 0 120px rgba(58,155,213,.15);
+  position:relative;
+}
+.faculty-initials-ring::before{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:1px solid var(--ac40);animation:spin 12s linear infinite;
+}
+.faculty-initials-ring::after{
+  content:'';position:absolute;inset:-18px;border-radius:50%;
+  border:1px dashed var(--ac20);animation:spin 20s linear infinite reverse;
+}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.faculty-initials{font-family:var(--fd);font-size:3.5rem;color:var(--w);letter-spacing:.06em}
+.faculty-role-badge{
+  font-family:var(--fm);font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--acl);background:var(--ac10);border:1px solid var(--ac20);
+  padding:.3rem .9rem;display:inline-block;margin-top:.5rem;
+}
+.faculty-info-side{padding:3.5rem;display:flex;flex-direction:column;justify-content:center}
+.faculty-name{font-family:var(--fd);font-size:clamp(2.5rem,4vw,4rem);letter-spacing:.04em;text-transform:uppercase;color:var(--w);line-height:1;margin-bottom:.5rem}
+.faculty-dept{font-family:var(--fm);font-size:.62rem;letter-spacing:.22em;color:var(--acl);text-transform:uppercase;margin-bottom:1.5rem}
+.faculty-bio{font-family:var(--fu);font-weight:300;font-size:.95rem;line-height:1.85;color:var(--w60);margin-bottom:2rem}
+.faculty-meta{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
+.fmeta-item{background:var(--ac10);border:1px solid var(--ac20);padding:.5rem 1rem;font-family:var(--fm);font-size:.58rem;letter-spacing:.18em;color:var(--acl);text-transform:uppercase}
+.faculty-socials{display:flex;gap:.8rem;flex-wrap:wrap}
+.soc-btn{
+  width:38px;height:38px;border:1px solid var(--w10);display:flex;align-items:center;justify-content:center;
+  text-decoration:none;color:var(--w40);transition:border-color .3s,color .3s,background .3s;
+}
+.soc-btn:hover{border-color:var(--acl);color:var(--acl);background:var(--ac10)}
+.soc-btn svg{width:15px;height:15px}
+
+/* ── TEAM SECTION ── */
+#team-section{padding:0 clamp(1.5rem,6vw,7rem) 8rem}
+.team-header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;margin-bottom:3rem}
+.team-heading{font-family:var(--fd);font-size:clamp(3rem,7vw,7rem);letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.team-heading .grad{background:linear-gradient(90deg,var(--acl),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.team-total{font-family:var(--fm);font-size:.62rem;letter-spacing:.25em;color:var(--w40);text-transform:uppercase}
+.team-total strong{color:var(--acl)}
+
+/* Role filter */
+.role-filters{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:3rem}
+.rf-btn{font-family:var(--fm);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;padding:.38rem 1rem;border:1px solid var(--w10);background:transparent;color:var(--w40);cursor:none;position:relative;overflow:hidden;transition:color .3s,border-color .3s}
+.rf-btn::before{content:'';position:absolute;inset:0;background:var(--ac10);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.rf-btn:hover{color:var(--acl);border-color:var(--ac20)}
+.rf-btn:hover::before{transform:scaleX(1)}
+.rf-btn.active{color:var(--acl);border-color:var(--ac);background:var(--ac10)}
+.rf-btn span{position:relative;z-index:1}
+
+/* Leadership row – larger cards */
+.leadership-row{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.5px;background:var(--w5);border:1px solid var(--w5);
+  margin-bottom:1.5px;
+}
+/* General grid */
+.team-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1.5px;background:var(--w5);border:1px solid var(--w5);
+}
+
+/* member card */
+.member-card{
+  background:var(--b1);
+  display:flex;flex-direction:column;
+  overflow:hidden;position:relative;
+  opacity:0;transform:translateY(30px);
+  transition:background .4s;
+  cursor:none;
+}
+.member-card:hover{background:var(--b2)}
+.member-card::after{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--ac),var(--acl));transform:scaleX(0);transform-origin:left;transition:transform .5s ease}
+.member-card:hover::after{transform:scaleX(1)}
+
+/* photo area */
+.mc-photo{
+  position:relative;overflow:hidden;
+  aspect-ratio:1/1;
+  background:linear-gradient(160deg,var(--b2),var(--acd));
+  display:flex;align-items:center;justify-content:center;
+}
+.mc-photo-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.4}
+.mc-initials{
+  font-family:var(--fd);font-size:clamp(2.5rem,6vw,4rem);
+  color:rgba(110,198,240,.5);
+  position:relative;z-index:1;letter-spacing:.08em;
+  transition:color .4s;
+}
+.member-card:hover .mc-initials{color:rgba(110,198,240,.85)}
+/* role badge on photo */
+.mc-role-badge{
+  position:absolute;bottom:0;left:0;right:0;
+  font-family:var(--fm);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.5rem 1rem;background:rgba(4,9,15,.85);backdrop-filter:blur(8px);
+  color:var(--acl);border-top:1px solid var(--ac20);
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);
+}
+.member-card:hover .mc-role-badge{transform:translateY(0)}
+
+.mc-body{padding:1.5rem 1.5rem 1rem;flex:1}
+.mc-name{font-family:var(--fd);font-size:1.5rem;letter-spacing:.05em;text-transform:uppercase;color:var(--w);margin-bottom:.3rem;line-height:1}
+.mc-role{font-family:var(--fm);font-size:.55rem;letter-spacing:.22em;color:var(--acl);text-transform:uppercase}
+.mc-foot{
+  padding:.9rem 1.5rem 1.2rem;
+  border-top:1px solid var(--w5);
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+  transition:border-color .4s;
+}
+.member-card:hover .mc-foot{border-color:var(--ac10)}
+.mc-soc{
+  width:28px;height:28px;border:1px solid var(--w10);
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;color:var(--w40);
+  transition:border-color .3s,color .3s,background .3s;flex-shrink:0;
+}
+.mc-soc:hover{border-color:var(--acl);color:var(--acl);background:var(--ac10)}
+.mc-soc svg{width:11px;height:11px}
+
+/* leadership cards bigger */
+.leader-card .mc-photo{aspect-ratio:3/4;min-height:280px}
+.leader-card .mc-initials{font-size:clamp(3.5rem,6vw,5.5rem)}
+.leader-card .mc-name{font-size:clamp(1.6rem,2.5vw,2.2rem)}
+
+/* ── MARQUEE ── */
+.marquee-section{padding:0;overflow:hidden;border-top:1px solid var(--w5);border-bottom:1px solid var(--w5);background:var(--b1)}
+.marquee-track{display:flex;white-space:nowrap;padding:1rem 0;animation:mq 26s linear infinite}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-track:hover{animation-play-state:paused}
+.mqi{font-family:var(--fd);font-size:1.3rem;letter-spacing:.18em;text-transform:uppercase;color:var(--w20);padding:0 2.5rem;display:flex;align-items:center;gap:2.5rem}
+.mqdot{width:6px;height:6px;border-radius:50%;background:var(--acl);flex-shrink:0}
+
+/* ── JOIN STRIP ── */
+#join-strip{
+  padding:7rem clamp(1.5rem,6vw,7rem);
+  background:var(--b1);border-top:1px solid var(--w5);
+  position:relative;overflow:hidden;
+}
+#join-strip::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:900px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(58,155,213,.07) 0%,transparent 70%);pointer-events:none}
+.js-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:3rem}
+.js-copy{}
+.js-tag{font-family:var(--fm);font-size:.65rem;letter-spacing:.38em;color:var(--acl);text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:1rem;opacity:0;transform:translateX(-30px)}
+.js-tag::before{content:'';display:block;width:28px;height:1px;background:var(--acl)}
+.js-heading{font-family:var(--fd);font-size:clamp(3rem,6vw,6rem);letter-spacing:.02em;text-transform:uppercase;line-height:1;margin-bottom:1.2rem}
+.js-heading .grad{background:linear-gradient(90deg,var(--acl),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.js-desc{font-family:var(--fu);font-weight:300;font-size:1rem;line-height:1.8;color:var(--w60);max-width:440px}
+.js-cta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:2.5rem;opacity:0;transform:translateY(20px)}
+.btn-primary{font-family:var(--fm);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--ac),var(--acd));color:var(--w);border:none;cursor:none;text-decoration:none;display:inline-flex;align-items:center;gap:.6rem;transition:transform .3s,box-shadow .3s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(58,155,213,.4)}
+.btn-outline{font-family:var(--fm);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;padding:.85rem 2.2rem;border:1px solid var(--ac40);color:var(--acl);background:transparent;cursor:none;text-decoration:none;display:inline-flex;align-items:center;gap:.6rem;transition:border-color .3s,color .3s,background .3s}
+.btn-outline:hover{border-color:var(--acl);color:var(--w);background:var(--ac10)}
+
+/* stats grid in join */
+.js-stats{display:grid;grid-template-columns:1fr 1fr;gap:1.5px;background:var(--w5);border:1px solid var(--w5);width:min(320px,100%);opacity:0;transform:translateY(30px)}
+.js-stat{background:var(--b1);padding:2rem 1.8rem}
+.js-stat-num{font-family:var(--fd);font-size:3.5rem;color:var(--acl);line-height:1;display:block}
+.js-stat-label{font-family:var(--fm);font-size:.55rem;letter-spacing:.25em;color:var(--w40);text-transform:uppercase;margin-top:.3rem}
+
+/* ── FOOTER ── */
+footer{background:var(--b1);border-top:1px solid var(--w5);padding:4rem clamp(1.5rem,6vw,7rem) 2rem}
+.footer-top{display:flex;align-items:flex-start;justify-content:space-between;gap:3rem;flex-wrap:wrap;margin-bottom:3rem}
+.footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:.8rem;text-decoration:none}
+.footer-diamond{width:30px;height:30px;background:linear-gradient(135deg,var(--acl),var(--ac),var(--acd));transform:rotate(45deg);display:flex;align-items:center;justify-content:center}
+.footer-tagline{font-family:var(--fu);font-weight:300;font-size:.85rem;color:var(--w40);letter-spacing:.06em;max-width:240px;line-height:1.6}
+.footer-links{display:flex;gap:4rem;flex-wrap:wrap}
+.footer-col h4{font-family:var(--fm);font-size:.58rem;letter-spacing:.35em;color:var(--acl);text-transform:uppercase;margin-bottom:1rem}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.footer-col a{font-family:var(--fu);font-weight:300;font-size:.85rem;color:var(--w40);text-decoration:none;letter-spacing:.04em;transition:color .3s}
+.footer-col a:hover{color:var(--acl)}
+.footer-bottom{border-top:1px solid var(--w5);padding-top:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-copy{font-family:var(--fm);font-size:.58rem;letter-spacing:.18em;color:var(--w20)}
+.footer-copy span{color:var(--acl)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .faculty-card{grid-template-columns:1fr}
+  .faculty-photo-side{min-height:260px}
+  .leadership-row{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  .team-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  .js-inner{flex-direction:column}
+}
+@media(max-width:600px){
+  .team-grid,.leadership-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="pp"><div id="ppf"></div></div>
+
+<!-- ══ LOADER ══ -->
+<div id="loader">
+  <div class="lc tl"></div><div class="lc tr"></div>
+  <div class="lc bl"></div><div class="lc br"></div>
+  <div class="l-center">
+    <span class="l-word" id="lw1"><span>T</span><span>E</span><span>A</span><span>M</span></span>
+    <div class="l-sub">ACM · NIT Surat · People</div>
+    <div class="l-bar-wrap"><div class="l-bar" id="lBar"></div></div>
+    <div class="l-pct" id="lPct">000%</div>
+  </div>
+  <div class="l-panel top" id="lpT"></div>
+  <div class="l-panel bot" id="lpB"></div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-diamond"><div class="nav-diamond-inner"><span>ACM</span></div></div>
+    <div class="nav-name">ACM<small>NIT Surat Chapter</small></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="#">Events</a></li>
+    <li><a href="blogs.html">Blog</a></li>
+    <li><a href="team.html" class="active">Team</a></li>
+  </ul>
+  <a href="#" class="nav-join"><span>Join Chapter</span></a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="team-hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div><div class="hero-glow2"></div>
+  <div class="hero-ring r1" id="ring1"></div>
+  <div class="hero-ring r2" id="ring2"></div>
+  <div class="hero-ring r3" id="ring3"></div>
+
+  <div class="hero-content">
+    <div class="h-eyebrow" id="hEye"><div class="h-tag">ACM NIT Surat</div>The People Behind the Code</div>
+    <h1 class="h-title">
+      <span class="line"><span class="word">MEET</span></span>
+      <span class="line"><span class="word grad">THE TEAM</span></span>
+    </h1>
+    <div class="h-meta" id="hMeta">
+      <p class="h-desc">Every event, project, and blog is powered by these extraordinary students. The core team of ACM NIT Surat — engineers, designers, writers, and organizers — making the chapter what it is.</p>
+      <div class="h-scroll"><div class="h-scroll-line"></div>Scroll to explore</div>
+    </div>
+  </div>
+  <div class="h-big-num" id="hBigNum">2025</div>
+</section>
+
+<!-- ══ YEAR TIMELINE ══ -->
+<div id="year-section">
+  <div class="year-track-wrap" id="yearWrap">
+    <div class="year-track" id="yearTrack"></div>
+  </div>
+</div>
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee-section" id="mq1">
+  <div class="marquee-track">
+    <div class="mqi"><div class="mqdot"></div>Chairperson</div>
+    <div class="mqi"><div class="mqdot"></div>Developer</div>
+    <div class="mqi"><div class="mqdot"></div>Designer</div>
+    <div class="mqi"><div class="mqdot"></div>Secretary</div>
+    <div class="mqi"><div class="mqdot"></div>Problem Setter</div>
+    <div class="mqi"><div class="mqdot"></div>Treasurer</div>
+    <div class="mqi"><div class="mqdot"></div>Community Head</div>
+    <div class="mqi"><div class="mqdot"></div>Core Member</div>
+    <div class="mqi"><div class="mqdot"></div>Chairperson</div>
+    <div class="mqi"><div class="mqdot"></div>Developer</div>
+    <div class="mqi"><div class="mqdot"></div>Designer</div>
+    <div class="mqi"><div class="mqdot"></div>Secretary</div>
+    <div class="mqi"><div class="mqdot"></div>Problem Setter</div>
+    <div class="mqi"><div class="mqdot"></div>Treasurer</div>
+    <div class="mqi"><div class="mqdot"></div>Community Head</div>
+    <div class="mqi"><div class="mqdot"></div>Core Member</div>
+  </div>
+</div>
+
+<!-- ══ FACULTY ADVISOR ══ -->
+<section id="faculty-section">
+  <div class="sec-label" id="facLabel">// Faculty Chairperson</div>
+  <div class="faculty-card" id="facCard">
+    <div class="faculty-photo-side">
+      <canvas id="facCanvas"></canvas>
+      <div class="faculty-avatar-wrap">
+        <div class="faculty-initials-ring">
+          <div class="faculty-initials">FA</div>
+        </div>
+        <div class="faculty-role-badge">Faculty Chairperson</div>
+      </div>
+    </div>
+    <div class="faculty-info-side">
+      <div>
+        <div class="faculty-name">Prof. Faculty Advisor</div>
+        <div class="faculty-dept">Department of Computer Science & Engineering · NIT Surat</div>
+        <p class="faculty-bio">
+          The Faculty Chairperson provides strategic guidance and institutional support to the ACM NIT Surat student chapter. A dedicated mentor to computer science students, they champion innovation, research, and professional development — helping the chapter connect academia with the real world of computing.
+        </p>
+        <div class="faculty-meta">
+          <div class="fmeta-item">Research Advisor</div>
+          <div class="fmeta-item">Mentor</div>
+          <div class="fmeta-item">Faculty ACM Member</div>
+          <div class="fmeta-item">NIT Surat</div>
+        </div>
+        <div class="faculty-socials">
+          <a href="mailto:" class="soc-btn" title="Email">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>
+          <a href="#" class="soc-btn" title="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TEAM SECTION ══ -->
+<section id="team-section">
+
+  <!-- Leadership -->
+  <div class="team-header" id="teamHdr">
+    <div>
+      <div class="sec-label" style="opacity:0;transform:translateX(-30px)" id="teamLabel">// Core Leadership · 2025</div>
+      <h2 class="team-heading"><span class="grad">Core</span> Leadership</h2>
+    </div>
+    <div class="team-total"><strong id="memberCount">18</strong> members · 2025</div>
+  </div>
+
+  <div class="role-filters" id="roleFilters">
+    <button class="rf-btn active" data-role="all"><span>All Roles</span></button>
+    <button class="rf-btn" data-role="leadership"><span>Leadership</span></button>
+    <button class="rf-btn" data-role="developer"><span>Developer</span></button>
+    <button class="rf-btn" data-role="designer"><span>Designer</span></button>
+    <button class="rf-btn" data-role="problem-setter"><span>Problem Setter</span></button>
+    <button class="rf-btn" data-role="core"><span>Core Member</span></button>
+  </div>
+
+  <!-- Leadership row -->
+  <div class="leadership-row" id="leadershipRow">
+    <!-- cards injected by JS -->
+  </div>
+
+  <!-- Full team grid -->
+  <div class="team-grid" id="teamGrid">
+    <!-- cards injected by JS -->
+  </div>
+
+</section>
+
+<!-- ══ JOIN STRIP ══ -->
+<section id="join-strip">
+  <div class="js-inner">
+    <div class="js-copy">
+      <div class="js-tag" id="jsTag">// Join the Chapter</div>
+      <h2 class="js-heading">
+        <span style="display:block;overflow:hidden"><span class="rv-w" style="display:inline-block;transform:translateY(110%)">Be Part</span></span>
+        <span style="display:block;overflow:hidden"><span class="rv-w grad" style="display:inline-block;transform:translateY(110%)">of the</span></span>
+        <span style="display:block;overflow:hidden"><span class="rv-w" style="display:inline-block;transform:translateY(110%)">Legacy</span></span>
+      </h2>
+      <p class="js-desc">The team grows every year. If you're passionate about computing, problem-solving, or just want to be part of something meaningful — ACM NIT Surat is your home.</p>
+      <div class="js-cta" id="jsCta">
+        <a href="#" class="btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Apply Now
+        </a>
+        <a href="#" class="btn-outline">Learn More</a>
+      </div>
+    </div>
+    <div class="js-stats" id="jsStats">
+      <div class="js-stat"><span class="js-stat-num" data-t="15" id="jss1">0</span><div class="js-stat-label">Years Active</div></div>
+      <div class="js-stat"><span class="js-stat-num" data-t="200" id="jss2">0</span><div class="js-stat-label">Alumni+</div></div>
+      <div class="js-stat"><span class="js-stat-num" data-t="18" id="jss3">0</span><div class="js-stat-label">2025 Team</div></div>
+      <div class="js-stat"><span class="js-stat-num" data-t="8" id="jss4">0</span><div class="js-stat-label">Projects</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="index.html" class="footer-logo">
+        <div class="footer-diamond"><div style="width:22px;height:22px;border-radius:50%;border:1.5px solid var(--w);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center"><span style="font-family:var(--fu);font-weight:700;font-size:.45rem;color:var(--w);transform:rotate(45deg)">ACM</span></div></div>
+        <span class="nav-name">ACM<small>NIT Surat Chapter</small></span>
+      </a>
+      <p class="footer-tagline">Advancing computing as a science & profession — one team at a time.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="projects.html">Projects</a></li><li><a href="#">Events</a></li><li><a href="blogs.html">Blog</a></li></ul></div>
+      <div class="footer-col"><h4>Chapter</h4><ul><li><a href="#">About Us</a></li><li><a href="team.html">Core Team</a></li><li><a href="#">Join ACM</a></li><li><a href="#">Contact</a></li></ul></div>
+      <div class="footer-col"><h4>Connect</h4><ul><li><a href="#">GitHub</a></li><li><a href="#">LinkedIn</a></li><li><a href="#">Instagram</a></li><li><a href="#">Discord</a></li></ul></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 <span>ACM NIT Surat</span> · All rights reserved</p>
+    <p class="footer-copy">Built with <span>♥</span> by the ACM Core Team</p>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, CustomEase);
+CustomEase.create('expo','M0,0 C0.16,1 0.3,1 1,1');
+
+/* ── DATA ──────────────────────────────────────── */
+const YEARS = [2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+
+const MEMBERS = [
+  // Leadership
+  {name:'Smit Marakna',role:'Chairperson',cat:'leadership',mail:'smitmarakna1709@gmail.com',li:'https://www.linkedin.com/in/smit-marakna-185456291',gh:'https://github.com/smitmarakna/'},
+  {name:'Chetan Kalsariya',role:'Vice-Chairperson',cat:'leadership',li:'https://www.linkedin.com/in/chetan-kalsariya',gh:'https://github.com/lost-alchemist'},
+  {name:'Jay Pipaliya',role:'Secretary',cat:'leadership',mail:'jaypipaliya0101@gmail.com',li:'https://www.linkedin.com/in/jay-pipaliya-117369326',gh:'https://github.com/jayp927'},
+  {name:'Archit Savaliya',role:'Secretary',cat:'leadership',mail:'architsavaliya175@gmail.com',li:'https://www.linkedin.com/in/architsavaliya',gh:'https://github.com/Archit-175'},
+  {name:'Dhruv Patel',role:'Treasurer',cat:'leadership',mail:'dhruvap2005@gmail.com',li:'https://www.linkedin.com/in/dhruv-patel-15a9082a9/',gh:'https://github.com/Cosmic717'},
+  {name:'Anand Tiwari',role:'Treasurer',cat:'leadership',mail:'anandgtiwari2005@gmail.com',li:'https://www.linkedin.com/in/anand-tiwari-271078235/',gh:'https://github.com/Anand-Tiwari2404'},
+  // Others
+  {name:'Foram Gandhi',role:'Community Head',cat:'core',mail:'gandhiforam91@gmail.com',li:'https://www.linkedin.com/in/foram-gandhi-85a045326'},
+  {name:'Miten Gandhi',role:'Developer',cat:'developer',mail:'mjgandhi2305@gmail.com',li:'https://www.linkedin.com/in/miten-j-gandhi',gh:'https://github.com/mjgandhi2305'},
+  {name:'Purv Kabaria',role:'Developer',cat:'developer',tw:'https://x.com/purvdev',mail:'purvkabaria@gmail.com',li:'https://www.linkedin.com/in/purv-kabaria/',gh:'https://github.com/Purv-Kabaria'},
+  {name:'Om Satodiya',role:'Developer',cat:'developer',mail:'omsatodiya96@gmail.com',li:'https://www.linkedin.com/in/om-satodiya9609',gh:'https://github.com/omsatodiya'},
+  {name:'Vanshik Godeshwar',role:'Problem Setter',cat:'problem-setter',mail:'vanshikgodeshwar@gmail.com',li:'https://www.linkedin.com/in/vanshikgodeshwar/',gh:'https://github.com/vanshik79godeshwar'},
+  {name:'Deepak Challa',role:'Problem Setter',cat:'problem-setter',mail:'challadeepaksai55@gmail.com',li:'https://www.linkedin.com/in/deepak-sai-challa-7a2240331'},
+  {name:'Anshul Reddy',role:'Problem Setter',cat:'problem-setter',mail:'kanshulreddy93@gmail.com',li:'https://www.linkedin.com/in/anshul-reddy-kotha/'},
+  {name:'Angela Dutta',role:'Designer',cat:'designer',mail:'duttaangela28@gmail.com',li:'https://www.linkedin.com/in/angela-dutta/',gh:'https://github.com/ang-dutta'},
+  {name:'Vanishka Karkera',role:'Designer',cat:'designer',mail:'vanishka.sk@gmail.com',li:'https://www.linkedin.com/in/vanishka-k-853593287/'},
+  {name:'Harshil Andhariya',role:'Core Member',cat:'core',mail:'harshilandhariya.2507@gmail.com',li:'https://www.linkedin.com/in/harshilpf2507',gh:'https://github.com/harshil-2507'},
+  {name:'Manthan Chauhan',role:'Core Member',cat:'core',mail:'manthansvnit9868@gmail.com',li:'https://www.linkedin.com/in/manthan-chauhan-373a5a2a8/'},
+  {name:'Govind',role:'Core Member',cat:'core',mail:'realgovindkrishna@gmail.com',li:'https://www.linkedin.com/in/govindkrishna2005',gh:'https://github.com/govind2005'},
+];
+
+/* Gradient palettes per role */
+const ROLE_GRADS = {
+  leadership:'linear-gradient(160deg,#0c1e33 0%,#1a5c8a 60%,#04090f 100%)',
+  developer:'linear-gradient(160deg,#081320 0%,#0f3a5c 60%,#04090f 100%)',
+  designer:'linear-gradient(160deg,#10152a 0%,#1a3a6a 60%,#04090f 100%)',
+  'problem-setter':'linear-gradient(160deg,#0a1a22 0%,#0d4a5a 60%,#04090f 100%)',
+  core:'linear-gradient(160deg,#081320 0%,#1a5c8a 50%,#04090f 100%)',
+};
+
+function initials(name){return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+
+/* ── SOCIAL ICONS ──────────────────────────────── */
+const iconMail = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+const iconLI   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`;
+const iconGH   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`;
+const iconTW   = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>`;
+
+function socials(m){
+  let s='';
+  if(m.mail) s+=`<a href="mailto:${m.mail}" class="mc-soc" title="Email">${iconMail}</a>`;
+  if(m.li)   s+=`<a href="${m.li}" target="_blank" class="mc-soc" title="LinkedIn">${iconLI}</a>`;
+  if(m.gh)   s+=`<a href="${m.gh}" target="_blank" class="mc-soc" title="GitHub">${iconGH}</a>`;
+  if(m.tw)   s+=`<a href="${m.tw}" target="_blank" class="mc-soc" title="Twitter">${iconTW}</a>`;
+  return s;
+}
+
+/* ── BUILD MEMBER CARD ─────────────────────────── */
+function makeCard(m, isLeader=false){
+  const div=document.createElement('div');
+  div.className='member-card'+(isLeader?' leader-card':'');
+  div.dataset.role=m.cat;
+  div.innerHTML=`
+    <div class="mc-photo" style="background:${ROLE_GRADS[m.cat]||ROLE_GRADS.core}">
+      <canvas class="mc-photo-canvas"></canvas>
+      <div class="mc-initials">${initials(m.name)}</div>
+      <div class="mc-role-badge">${m.role}</div>
+    </div>
+    <div class="mc-body">
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-role">${m.role}</div>
+    </div>
+    <div class="mc-foot">${socials(m)}</div>
+  `;
+  // mini canvas per card
+  const canvas=div.querySelector('.mc-photo-canvas');
+  initMiniCanvas(canvas);
+  return div;
+}
+
+/* ── MINI CANVAS for each card ─────────────────── */
+function initMiniCanvas(c){
+  const ctx=c.getContext('2d');
+  let w,h,pts=[];
+  function resize(){w=c.width=c.offsetWidth;h=c.height=c.offsetHeight;pts=[];for(let i=0;i<20;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.2+.4,p:Math.random()*Math.PI*2})}
+  resize();new ResizeObserver(resize).observe(c);
+  (function draw(){
+    if(!w||!h){requestAnimationFrame(draw);return}
+    ctx.clearRect(0,0,w,h);
+    pts.forEach(d=>{d.p+=.025;d.x+=d.vx;d.y+=d.vy;if(d.x<0||d.x>w)d.vx*=-1;if(d.y<0||d.y>h)d.vy*=-1;const a=(.15+.1*Math.sin(d.p));ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fillStyle=`rgba(110,198,240,${a})`;ctx.fill()});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);if(d<70){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(58,155,213,${(.12*(1-d/70)).toFixed(3)})`;ctx.lineWidth=.5;ctx.stroke()}}
+    requestAnimationFrame(draw);
+  })();
+}
+
+/* ── POPULATE GRIDS ────────────────────────────── */
+const leaders = MEMBERS.filter(m=>m.cat==='leadership');
+const others  = MEMBERS.filter(m=>m.cat!=='leadership');
+const lRow    = document.getElementById('leadershipRow');
+const tGrid   = document.getElementById('teamGrid');
+leaders.forEach(m=>lRow.appendChild(makeCard(m,true)));
+others.forEach(m=>tGrid.appendChild(makeCard(m,false)));
+
+/* ── BUILD YEAR TIMELINE ───────────────────────── */
+const track=document.getElementById('yearTrack');
+YEARS.forEach(yr=>{
+  const node=document.createElement('div');
+  node.className='year-node'+(yr===2025?' active':'');
+  node.dataset.year=yr;
+  node.innerHTML=`
+    <div class="yn-count">${yr}</div>
+    <div class="yn-dot"></div>
+    <div class="yn-label">${yr===2025?'Current':''}</div>
+    ${yr===2025?'<div class="yn-active-pill">→ Active</div>':''}
+  `;
+  node.addEventListener('click',()=>{
+    document.querySelectorAll('.year-node').forEach(n=>n.classList.remove('active'));
+    node.classList.add('active');
+    document.getElementById('hBigNum').textContent=yr;
+    gsap.from('#hBigNum',{scale:1.3,opacity:0,duration:.6,ease:'expo.out'});
+  });
+  track.appendChild(node);
+});
+// Scroll timeline to end (2025)
+setTimeout(()=>{
+  const wrap=document.getElementById('yearWrap');
+  wrap.scrollLeft=wrap.scrollWidth;
+},200);
+
+/* ── CURSOR ────────────────────────────────────── */
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function ac(){gsap.set(cursor,{x:mx,y:my});rx+=(mx-rx)*.12;ry+=(my-ry)*.12;gsap.set(ring,{x:rx,y:ry});requestAnimationFrame(ac)})();
+
+/* ── PROGRESS ──────────────────────────────────── */
+window.addEventListener('scroll',()=>{document.getElementById('ppf').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%'});
+
+/* ── LOADER ────────────────────────────────────── */
+const lBar=document.getElementById('lBar'),lPct=document.getElementById('lPct');
+function setP(v){lBar.style.width=v+'%';lPct.textContent=String(Math.round(v)).padStart(3,'0')+'%'}
+const ltl=gsap.timeline({defaults:{ease:'expo.out'}});
+ltl
+  .to('.lc',{opacity:1,duration:.5,stagger:.1},0)
+  .to('.l-sub',{opacity:1,duration:.6},0.3)
+  .to('#lPct',{opacity:1,duration:.4},0.5)
+  .to('#lw1 span',{y:0,opacity:1,duration:.9,stagger:.1,ease:'back.out(1.7)'},0.4)
+  .to({},{duration:1.8,onUpdate:function(){setP(this.progress()*100)},ease:'power1.inOut'},0.8)
+  .to('.lc,.l-sub,#lPct,#lw1',{opacity:0,duration:.3},3.0)
+  .to('#lpT',{scaleY:1,duration:.5,ease:'power4.inOut'},3.1)
+  .to('#lpB',{scaleY:1,duration:.5,ease:'power4.inOut'},3.1)
+  .to('#lpT',{scaleY:0,duration:.5,ease:'power4.inOut'},3.6)
+  .to('#lpB',{scaleY:0,duration:.5,ease:'power4.inOut'},3.6)
+  .to('#loader',{opacity:0,duration:.4,pointerEvents:'none',onComplete:()=>{document.getElementById('loader').style.display='none'}},3.9)
+  .to('#navbar',{opacity:1,y:0,duration:.7},3.85)
+  .to('#hEye',{opacity:1,duration:.6},4.1)
+  .to('.h-title .word',{y:0,duration:.9,stagger:.12,ease:'expo.out'},4.2)
+  .to('#hMeta',{opacity:1,duration:.7},4.6)
+  .to('#hBigNum',{opacity:1,duration:1.2},4.5)
+  .to('.hero-ring',{opacity:1,duration:1.5,stagger:.2},4.0);
+
+/* ── HERO CANVAS ───────────────────────────────── */
+const hc=document.getElementById('hero-canvas'),hctx=hc.getContext('2d');
+function hR(){hc.width=hc.offsetWidth;hc.height=hc.offsetHeight}hR();window.addEventListener('resize',hR);
+let mhx=innerWidth/2,mhy=innerHeight/2;
+document.addEventListener('mousemove',e=>{mhx=e.clientX;mhy=e.clientY});
+const hdots=[];for(let i=0;i<100;i++)hdots.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.2+.4});
+(function dH(){
+  hctx.clearRect(0,0,hc.width,hc.height);
+  hdots.forEach(d=>{d.x+=d.vx;d.y+=d.vy;if(d.x<0||d.x>hc.width)d.vx*=-1;if(d.y<0||d.y>hc.height)d.vy*=-1;const dist=Math.hypot(d.x-mhx,d.y-mhy);const a=Math.max(0,.6-dist/400);hctx.beginPath();hctx.arc(d.x,d.y,d.r,0,Math.PI*2);hctx.fillStyle=`rgba(58,155,213,${a})`;hctx.fill()});
+  for(let i=0;i<hdots.length;i++)for(let j=i+1;j<hdots.length;j++){const d=Math.hypot(hdots[i].x-hdots[j].x,hdots[i].y-hdots[j].y);if(d<100){hctx.beginPath();hctx.moveTo(hdots[i].x,hdots[i].y);hctx.lineTo(hdots[j].x,hdots[j].y);hctx.strokeStyle=`rgba(58,155,213,${(.2*(1-d/100)).toFixed(3)})`;hctx.lineWidth=.5;hctx.stroke()}}
+  requestAnimationFrame(dH);
+})();
+
+/* ── FACULTY CANVAS ────────────────────────────── */
+const fc=document.getElementById('facCanvas');
+const fctx=fc.getContext('2d');
+function fR(){fc.width=fc.offsetWidth;fc.height=fc.offsetHeight}fR();window.addEventListener('resize',fR);
+const fpts=[];for(let i=0;i<50;i++)fpts.push({x:Math.random()*600,y:Math.random()*400,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5,p:Math.random()*Math.PI*2});
+(function dF(){
+  if(!fc.width||!fc.height){requestAnimationFrame(dF);return}
+  fctx.clearRect(0,0,fc.width,fc.height);
+  fpts.forEach(d=>{d.p+=.018;d.x+=d.vx;d.y+=d.vy;if(d.x<0||d.x>fc.width)d.vx*=-1;if(d.y<0||d.y>fc.height)d.vy*=-1;const a=.18+.12*Math.sin(d.p);fctx.beginPath();fctx.arc(d.x,d.y,d.r,0,Math.PI*2);fctx.fillStyle=`rgba(110,198,240,${a})`;fctx.fill()});
+  for(let i=0;i<fpts.length;i++)for(let j=i+1;j<fpts.length;j++){const d=Math.hypot(fpts[i].x-fpts[j].x,fpts[i].y-fpts[j].y);if(d<100){fctx.beginPath();fctx.moveTo(fpts[i].x,fpts[i].y);fctx.lineTo(fpts[j].x,fpts[j].y);fctx.strokeStyle=`rgba(58,155,213,${(.15*(1-d/100)).toFixed(3)})`;fctx.lineWidth=.5;fctx.stroke()}}
+  requestAnimationFrame(dF);
+})();
+
+/* ── RINGS ANIMATION ───────────────────────────── */
+gsap.to('#ring1',{rotation:360,duration:50,repeat:-1,ease:'none',transformOrigin:'50% 50%'});
+gsap.to('#ring2',{rotation:-360,duration:70,repeat:-1,ease:'none',transformOrigin:'50% 50%'});
+gsap.to('#ring3',{rotation:360,duration:30,repeat:-1,ease:'none',transformOrigin:'50% 50%'});
+
+/* ── SCROLL TRIGGERS ───────────────────────────── */
+// Section labels
+gsap.utils.toArray('.sec-label,#teamLabel,#jsTag').forEach(el=>{
+  gsap.to(el,{opacity:1,x:0,duration:.7,ease:'expo.out',scrollTrigger:{trigger:el,start:'top 88%'}});
+});
+// Faculty card
+gsap.to('#facCard',{opacity:1,y:0,duration:1.1,ease:'expo.out',scrollTrigger:{trigger:'#facCard',start:'top 78%'}});
+// Leadership cards
+gsap.to('#leadershipRow .member-card',{opacity:1,y:0,duration:.8,stagger:{amount:0.6},ease:'expo.out',scrollTrigger:{trigger:'#leadershipRow',start:'top 82%'}});
+// Team cards
+gsap.to('#teamGrid .member-card',{opacity:1,y:0,duration:.7,stagger:{amount:1},ease:'expo.out',scrollTrigger:{trigger:'#teamGrid',start:'top 85%'}});
+// Year track
+gsap.from('#yearTrack .year-node',{opacity:0,y:20,duration:.6,stagger:.04,ease:'expo.out',scrollTrigger:{trigger:'#year-section',start:'top 85%'}});
+// Join section
+gsap.to('#jsCta',{opacity:1,y:0,duration:.8,ease:'expo.out',scrollTrigger:{trigger:'#jsCta',start:'top 88%'}});
+gsap.to('#jsStats',{opacity:1,y:0,duration:.9,ease:'expo.out',scrollTrigger:{trigger:'#jsStats',start:'top 80%',
+  onEnter:()=>{
+    document.querySelectorAll('.js-stat-num').forEach(el=>{
+      const t=+el.dataset.t;
+      gsap.to({v:0},{v:t,duration:2,ease:'power2.out',onUpdate:function(){el.textContent=Math.round(this.targets()[0].v)+(t>=100?'+':'')}});
+    });
+  }
+}});
+gsap.utils.toArray('.rv-w').forEach(el=>{
+  ScrollTrigger.create({trigger:el,start:'top 85%',onEnter:()=>gsap.to(el,{y:0,duration:.9,ease:'expo.out'})});
+});
+// Footer
+gsap.from('.footer-top > *',{y:30,opacity:0,duration:.8,stagger:.15,ease:'expo.out',scrollTrigger:{trigger:'footer',start:'top 85%'}});
+
+/* ── NAV HIDE/SHOW ─────────────────────────────── */
+let lastY=0;
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY,nav=document.getElementById('navbar');
+  nav.style.transform=y>lastY&&y>120?'translateY(-100%)':'translateY(0)';
+  nav.style.transition='transform .4s ease';
+  lastY=y;
+});
+
+/* ── PARALLAX ──────────────────────────────────── */
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  document.querySelector('.hero-glow').style.transform=`translateY(${y*.12}px)`;
+  document.querySelector('.hero-glow2').style.transform=`translateY(${-y*.08}px)`;
+});
+
+/* ── MAGNETIC TILT on member cards ────────────── */
+function addTilt(cards){
+  cards.forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const dx=(e.clientX-r.left-r.width/2)/r.width*8;
+      const dy=(e.clientY-r.top-r.height/2)/r.height*8;
+      gsap.to(card,{rotateX:-dy,rotateY:dx,duration:.4,ease:'power2.out',transformPerspective:600,transformOrigin:'50% 50%',zIndex:2});
+    });
+    card.addEventListener('mouseleave',()=>{
+      gsap.to(card,{rotateX:0,rotateY:0,duration:.7,ease:'elastic.out(1,.7)',zIndex:1});
+    });
+  });
+}
+// Run after DOM is settled
+setTimeout(()=>addTilt(document.querySelectorAll('.member-card')),100);
+
+/* ── ROLE FILTER ───────────────────────────────── */
+document.querySelectorAll('.rf-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.rf-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const role=btn.dataset.role;
+    let cnt=0;
+    document.querySelectorAll('.member-card').forEach(card=>{
+      const match=role==='all'||card.dataset.role===role;
+      if(match){cnt++;gsap.to(card,{opacity:1,scale:1,duration:.4,ease:'expo.out',pointerEvents:'all'})}
+      else gsap.to(card,{opacity:0,scale:.95,duration:.3,ease:'power2.in',pointerEvents:'none'});
+    });
+    document.getElementById('memberCount').textContent=cnt;
+  });
+});
+
+/* ── FACULTY card tilt ─────────────────────────── */
+const fac=document.getElementById('facCard');
+fac.addEventListener('mousemove',e=>{
+  const r=fac.getBoundingClientRect();
+  const dx=(e.clientX-r.left-r.width/2)/r.width*5;
+  const dy=(e.clientY-r.top-r.height/2)/r.height*5;
+  gsap.to(fac,{rotateX:-dy,rotateY:dx,duration:.5,ease:'power2.out',transformPerspective:800,transformOrigin:'50% 50%'});
+});
+fac.addEventListener('mouseleave',()=>gsap.to(fac,{rotateX:0,rotateY:0,duration:.8,ease:'elastic.out(1,.7)'}));
+</script>
+</body>
+</html>

@@ -75,8 +75,9 @@ export default function Loader({ onComplete }) {
         ease: 'back.out(1.3)',
       }, 0.4)
       // 5. shimmer sweep across diamond
-      .to('.loader-diamond::after', {
-        '--x': '200%',
+      .to('.loader-diamond-shimmer', {
+        x: '200%',
+        y: '200%',
         duration: .9,
       }, 1.2)
       // 6. circle pops in
@@ -149,6 +150,7 @@ export default function Loader({ onComplete }) {
       {/* main logo */}
       <div className="loader-diamond-wrap">
         <div className="loader-diamond">
+          <div className="loader-diamond-shimmer"></div>
           <div className="loader-diamond-border"></div>
           <div className="loader-circle-wrap">
             <div className="loader-circle">

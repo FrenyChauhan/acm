@@ -34,6 +34,9 @@ dist-ssr
 client/dist
 server/logs
 
+# Local public assets (images served via Cloudinary in production)
+client/public/
+
 # Coverage directory used by tools like istanbul
 coverage
 *.lcov

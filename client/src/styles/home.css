@@ -835,3 +835,40 @@ footer{
   margin:0 clamp(1.5rem,6vw,7rem);
 }
 
+/* ══ RESPONSIVE ══════════════════════════════════════ */
+@media(max-width:1100px){
+  .wwd-grid{grid-template-columns:repeat(2,1fr)}
+  .events-grid{grid-template-columns:1fr}
+  .event-card.featured{grid-template-columns:1fr; gap:1.5rem}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media(max-width:900px){
+  #hero{flex-direction:column; align-items:flex-start; justify-content:center; padding-top:120px}
+  .hero-content{padding:0 0 30px}
+  .hero-stats{position:relative; bottom:auto; right:auto; justify-content:flex-start; gap:2rem}
+  .hero-stat{text-align:left}
+  .hero-scroll{display:none}
+  .nav-links,.nav-join{display:none}
+  .nav-hamburger{display:flex}
+  .hero-deco{display:none}
+  .about-grid{grid-template-columns:1fr; gap:3rem}
+  .about-visual{height:400px; order:-1}
+  .about-card.main{width:85%}
+  .about-card.accent{width:70%}
+  .wwd-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr; gap:2.5rem}
+  .footer-top{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  section{padding:clamp(4rem,8vh,6rem) 1.5rem}
+  .hero-content{padding:80px 0 60px}
+  .hero-title{font-size:clamp(3.5rem,10vw,4.5rem)}
+  .about-visual{height:320px}
+  .about-card.main{width:90%; padding:1.2rem}
+  .about-card.accent{width:80%; padding:1.2rem}
+  .about-card-num{font-size:2.8rem}
+  .about-card-since{font-size:2.5rem}
+  .about-highlights{grid-template-columns:1fr}
+  .join-heading{font-size:clamp(2rem,6vw,3rem)}
+  .join-inner{flex-direction:column; align-items:flex-start}
+}
